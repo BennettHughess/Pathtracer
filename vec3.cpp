@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 #include "vec3.h"
 
 /*
@@ -57,9 +58,19 @@ double dot(const Vec3& v1, const Vec3& v2) {
 }
 
 // Multiply vector by scalar and save as new vector (made commutative)
-Vec3 operator*(Vec3& v, double t) {
+Vec3 operator*(const Vec3& v, double t) {
     return Vec3(v.e[0]*t, v.e[1]*t, v.e[2]*t);
 }
-Vec3 operator*(double t, Vec3& v) {
+Vec3 operator*(double t, const Vec3& v) {
     return v*t;
+}
+
+// Output code
+std::ostream& operator<<(std::ostream& out, const Vec3& v) {
+    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
+}
+
+// Get unit vector
+Vec3 unit_vector(const Vec3& v) {
+    return v*(1/v.norm());
 }

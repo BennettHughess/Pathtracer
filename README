@@ -6,7 +6,9 @@ Current files:
 
 - `main.cpp`
     - Compile and run this to execute the main code.
-- `vec3.h`
+- `vec3.h` and `vec3.cpp`
     - This file contains the `Vec3` class, which describes three-dimensional vectors.
-- `color.h`
-    - This file contains the requisite code to write a pixel to an ouput stream.
+- `pathtracer.h` and `pathtracer.cpp`
+    - This file contains the `Path` class, which allows for pathtracing.
+- `debug.cpp`
+    - This file is used in place of `main.cpp`, and is used exclusively for debugging

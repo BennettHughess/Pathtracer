@@ -1,0 +1,7 @@
+# TO DO
+
+- Implement pathtracer in 3 dimensions
+- Compute images from the inside of a sphere using pathtracer
+- Generalize vec3 to vec4, including a time component
+- Use vec4 to generalize pathtracer to trace with nonzero Christoffel symbols
+- Implement the Schwarzschild metric
