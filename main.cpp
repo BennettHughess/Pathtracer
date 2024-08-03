@@ -8,6 +8,7 @@
 #include <vector>
 #include "vec3.h"
 #include "pathtracer.h"
+#include "omp.h"
 
 void print_path(Path& path) {
     std::cout << "path has position " << path.pos << " and direction " << path.vel << ".\n";
@@ -33,10 +34,13 @@ void write_color(std::ostream& out, const Vec3& pixel_color) {
 Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
 
     double path_distance {path.pos.norm()};
+    double maximum_radius = 50;
 
-    while (path_distance < radius) {
+    while (path_distance < maximum_radius) {
         path.propagate(dt);
         path_distance = path.pos.norm(); // is this inefficient?
+        if (path_distance < radius) 
+            break;
     }
 
     return path.pos;
@@ -45,6 +49,9 @@ Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
 double g_pi = 3.14159;
 
 Vec3 get_color(Vec3& pos) {
+    if (pos.norm() > 10)
+        return Vec3(0,0,0);
+
     double theta = atan2(sqrt(pos[0]*pos[0]+pos[1]*pos[1]),pos[2]);
     double phi = atan2(pos[1], pos[0]);
     
@@ -63,6 +70,8 @@ Vec3 get_color(Vec3& pos) {
 
 int main() {
 
+    omp_set_num_threads(16);
+
     // Configure image size
     const int image_width {640};
     const int image_height {480};
@@ -72,7 +81,7 @@ int main() {
     const double background_radius {10};
 
     // Viewport settings
-    const Vec3 camera_position {-9,0,0};
+    const Vec3 camera_position {-20,0,0};
     const Vec3 camera_direction {1,0,0}; // norm of this is distance to viewport
     // These are the unit vectors for the viewport: uhat is left to right, vhat is top to bottom
     const Vec3 uhat {0, -1, 0}; // need to compute this automatically later
@@ -120,24 +129,27 @@ int main() {
 
     // i,j are indices: i <-> rows, j <-> columns
     // we iterate over each pixel and set its color accordingly
-    for (int i {0}; i < image_height; ++i) {
+    for (int i=0; i < image_height; ++i) {
         
         // Progress bar
-        std::clog << '\r' << int(100*(double(i)/image_height)) << "\% completed. " << std::flush;
+        //std::clog << '\r' << int(100*(double(i)/image_height)) << "\% completed. " << std::flush;
 
-        for (int j {0}; j < image_width; ++j) {
+        #pragma omp parallel for
+        for (int j=0; j < image_width; ++j) {
 
             // Trace a ray till it collides
-            Vec3 collision_pos = get_collision_pos(rays[i][j], background_radius);
+            get_collision_pos(rays[i][j], background_radius);
 
             // Get the ray's color and save as pixel_color
-            Vec3 pixel_color = get_color(collision_pos);
+            rays[i][j].pos = get_color(rays[i][j].pos);
 
             // Write color to output stream
-            write_color(std::cout, pixel_color);
-
         }
     }
+
+    for (int i=0; i<image_height; i++)
+        for (int j=0; j<image_width; j++)
+            write_color(std::cout, rays[i][j].pos);
 
     // Finished!
     std::clog << "\rDone.               \n";
