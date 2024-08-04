@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
-#include <vector>
+// #include <vector>
+#include <fstream>
+#include <string>
 #include "vec3.h"
 #include "camera.h"
 #include "pathtracer.h"
@@ -9,7 +11,7 @@ void print_path(Path& path) {
     std::cout << "path has position " << path.position << " and direction " << path.velocity << ".\n";
 }
 
-void write_color(std::ostream& out, const Vec3& pixel_color) {
+void write_color(std::ofstream& out, const Vec3& pixel_color) {
 
     // pixel_color values should be in the range [0,1]
     double r_proportion {std::abs(pixel_color.e[0])};
@@ -57,7 +59,7 @@ Vec3 get_color(Vec3& pos) {
     return rgb;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
     // Configure camera position and direction
     Vec3 camera_position {-9,0,0};
@@ -73,6 +75,16 @@ int main() {
     const int image_height {480};
     camera.set_image_settings(image_width, image_height);
 
+    // Get filename and initialize filestream
+    std::ofstream filestream;
+    if (argv[1] == NULL) {        // check if filename was inputted
+        filestream.open("main.ppm"); // if not, default output file to main.ppm
+    } 
+    else {
+        std::string filename {argv[1]}; // if so, use the inputted filename
+        filestream.open(filename);
+    }
+    
     // Configure background
     const double background_radius {10};
 
@@ -88,7 +100,7 @@ int main() {
     */
 
     // ppm header
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    filestream << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     // i,j are indices: i <-> rows, j <-> columns
     // we iterate over each pixel and set its color accordingly
@@ -106,13 +118,15 @@ int main() {
             Vec3 pixel_color = get_color(collision_pos);
 
             // Write color to output stream
-            write_color(std::cout, pixel_color);
+            write_color(filestream, pixel_color);
 
         }
     }
 
     // Finished!
     std::clog << "\rDone.               \n";
+
+    filestream.close();
 
     return 0;
 }

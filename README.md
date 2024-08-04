@@ -6,13 +6,19 @@ This project is a raytracer, which will eventually be retooled and repackaged in
 
 At the moment, the raytracer is capable of raytracing the interior of a sphere. The camera position, field of view, and other related quantities can be altered inside the `main.ccp` file.
 
-To run the project, compile all of the .cpp files. Run the executable and pipe the output into a .ppm file as follows:
+To run the project, compile all of the .cpp files. Run the executable, and the output will be in a `main.ppm` file.
 
 ```console
-ben@bens-mbp-4 Raytracer % ./main > main.ppm
+ben@bens-mbp-4 Raytracer % ./main
 ```
 
-The resulting `main.ppm` file which is created is an image file which can be viewed. On MacOS, Preview is capable of viewing these files. On Windows, I know GIMP can open these files as well.
+You may optionally include the name of the output file:
+
+```console
+ben@bens-mbp-4 Raytracer % ./main output.ppm
+```
+
+The resulting `.ppm` file which is created is an image file which can be viewed. On MacOS, Preview is capable of viewing these files. On Windows, I know GIMP can open these files as well.
 
 Current files:
 
