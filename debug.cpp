@@ -7,7 +7,7 @@
 int main() {
 
     // Get file
-    std::string filename {"images/smileyface.ppm"};
+    std::string filename {"images/vista_panorama.ppm"};
 
     std::cout << "filename set \n";
 
@@ -21,17 +21,8 @@ int main() {
 
     std::cout << "ppm loaded \n";
 
-    // Grab image array
-    std::vector<std::vector<Vec3>>& image = background.get_image_array();
-
-    std::cout << "image array grabbed \n";
-
-    // Print some of image array into terminal
-    for (int i {0}; i < 100; ++i) {
-        for (int j {0}; j < 100; ++j) {
-            std::cout << image[i][j];
-        }
-    }
+    // Print the file
+    background.save_ppm("debug.ppm"); //prints fine!
 
     return 0;
 }

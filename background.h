@@ -42,8 +42,11 @@ class Background {
         // Load image into memory
         void load_ppm(const std::string filename);
 
+        // Save loaded ppm into a file
+        void save_ppm(const std::string filename);
+
         // Get color given a spherical coordinate
-        Vec3& get_color(Vec3& spherical_coordinates);
+        Vec3 get_color(Vec3& spherical_coordinates);
 
         // define pi
         double m_pi { 3.14159 };

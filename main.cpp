@@ -20,27 +20,44 @@ Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
     return path.position;
 }
 
+const double g_pi = 3.14159;
+
 Vec3 cartesian_to_spherical(const Vec3& cartesian) {
 
     double theta { atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]) };
-    double phi { atan2(cartesian[1], cartesian[0]) };
+
+    double phi {};
+    if (cartesian[0] >= 0 && cartesian[1] >= 0) {
+        phi = atan(cartesian[1]/cartesian[0]);
+    }
+    else if (cartesian[0] < 0 && cartesian[1] >= 0) {
+        phi = g_pi/2 + atan(-cartesian[0]/cartesian[1]);
+    }
+    else if (cartesian[0] < 0 && cartesian[1] < 0) {
+        phi = g_pi + atan(cartesian[1]/cartesian[0]);
+    }
+    else if (cartesian[0] >= 0 && cartesian[1] < 0) {
+        phi = 3*g_pi/2 + atan(-cartesian[0]/cartesian[1]);
+    }
+    else {
+        phi = 0;
+    }
+
     double r { cartesian.norm() };
 
     return Vec3 {r, theta, phi};
 }
 
-const double g_pi = 3.14159;
-
 int main(int argc, char *argv[]) {
 
     // Configure camera position and direction
-    Vec3 camera_position {-9,0,0};
-    Vec3 camera_direction {1,0,0};
+    Vec3 camera_position {0,0,-5};
+    Vec3 camera_direction {-1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
 
     // Rotate camera!
-    camera.rotate(0,1.5*g_pi/8,0);
+    camera.rotate(0,0,0);
 
     // Configure image size
     const int image_width {1920};
@@ -65,7 +82,7 @@ int main(int argc, char *argv[]) {
     background.load_ppm("images/vista_panorama.ppm");
 
     // Configure viewport
-    const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
+    const double fov {2.0}; //1.815 rads is valorant fov, 104 degrees
     camera.set_viewport_settings(fov);
 
     // Initialize rays (this sets up the rays array)
@@ -96,6 +113,7 @@ int main(int argc, char *argv[]) {
 
             // Write color to output stream
             filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';
+            // filestream << spherical_collision_pos << '\n';
 
         }
     }

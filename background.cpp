@@ -74,7 +74,41 @@ void Background::load_ppm(const std::string filename) {
     }
 }
 
-Vec3& Background::get_color(Vec3& spherical_coordinates) {
+// Save image_array to a ppm file
+void Background::save_ppm(const std::string filename) {
+
+    if (image_been_loaded && type == image) {
+
+        // Open filestream
+        std::ofstream filestream;
+        filestream.open(filename);
+
+        // Doesn't throw an exception, just points it out to you.
+        if (!filestream) {
+            std::cerr << "Could not open file. \n";
+        }
+
+        // Print header
+        filestream << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+        // Output image_array to filestream
+        for (int i {0}; i < image_height; ++i) {
+            for (int j {0}; j < image_width; ++j) {
+
+                // Write color to output stream
+                filestream << int(image_array[i][j][0]) << ' ' << int(image_array[i][j][1]) << ' ' << int(image_array[i][j][2]) << '\n';
+
+            }
+        }
+
+    }
+    else {
+         std::cerr << "Image was not loaded prior to saving. \n";
+    }
+
+}
+
+Vec3 Background::get_color(Vec3& spherical_coordinates) {
     // note: spherical coordinates should be in r, theta, phi
 
     if (image_been_loaded && type == image) {
@@ -85,19 +119,23 @@ Vec3& Background::get_color(Vec3& spherical_coordinates) {
         int x_pixel = int(spherical_coordinates[2]*image_width/(2*m_pi));
         int y_pixel = int(spherical_coordinates[1]*image_height/m_pi);
 
-        Vec3& color { image_array[y_pixel][x_pixel] };
+        Vec3 color { image_array[y_pixel][x_pixel] };
 
         return color;
 
     }
     else if (type == layered) {
         
-        if (fmod(spherical_coordinates[2],m_pi/8)> m_pi/16) {
-            Vec3& color { image_array[0][0] };
+        if (fmod(spherical_coordinates[1],m_pi/8)> m_pi/16) {
+            Vec3 color { 255, 0, 0 };
+            return color;
+        }
+        else if (fmod(spherical_coordinates[2],m_pi/8)> m_pi/16) {
+            Vec3 color { 0, 255, 0 };
             return color;
         }
         else {
-            Vec3& color { image_array[100][200] };
+            Vec3 color { 255, 255, 255 };
             return color;
         }
 
@@ -105,7 +143,7 @@ Vec3& Background::get_color(Vec3& spherical_coordinates) {
     else {
 
         std::cerr << "Image was not loaded prior to raytracing or unknown type. \n";
-        Vec3& color {image_array[0][0]};
+        Vec3 color { 0, 0, 0 };
         return color;
 
     }
