@@ -9,7 +9,7 @@ TARGET = main
 
 # Functions
 main: main.cpp vec3.cpp pathtracer.cpp
-	$(CXX) main.cpp vec3.cpp pathtracer.cpp $(CXXFLAGS) -o $(TARGET) 
+	$(CXX) main.cpp vec3.cpp pathtracer.cpp camera.cpp $(CXXFLAGS) -o $(TARGET) 
 
 debug: debug.cpp vec3.cpp pathtracer.cpp
-	$(CXX) debug.cpp vec3.cpp pathtracer.cpp $(CXXFLAGS) -o debug
+	$(CXX) debug.cpp vec3.cpp pathtracer.cpp camera.cpp $(CXXFLAGS) -o debug

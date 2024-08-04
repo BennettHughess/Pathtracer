@@ -41,3 +41,6 @@ std::ostream& operator<<(std::ostream& out, const Vec3& v);
 
 // Get unit vector
 Vec3 unit_vector(const Vec3& v);
+
+// Get cross product
+Vec3 cross(const Vec3& v1, const Vec3& v2);

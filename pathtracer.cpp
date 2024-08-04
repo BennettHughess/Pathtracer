@@ -1,14 +1,14 @@
 #include "pathtracer.h"
 
 // Update the position to given one
-Path& Path::update_pos(Vec3& new_pos) {
-    pos = new_pos;
+Path& Path::update_position(Vec3& new_position) {
+    position = new_position;
     return *this;
 }
 
 // Update direction to given one
-Path& Path::update_vel(Vec3& new_vel) {
-    vel = new_vel;
+Path& Path::update_velocity(Vec3& new_velocity) {
+    velocity = new_velocity;
     return *this;
 }
 
@@ -16,6 +16,6 @@ Path& Path::update_vel(Vec3& new_vel) {
 Path& Path::propagate(double dt) {
     // Should implement some kind of acceleration vector later
     // This would be another input to propagate, `Vec3& accel`
-    pos = pos+vel*dt;
+    position = position+velocity*dt;
     return *this;
 }

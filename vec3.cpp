@@ -74,3 +74,12 @@ std::ostream& operator<<(std::ostream& out, const Vec3& v) {
 Vec3 unit_vector(const Vec3& v) {
     return v*(1/v.norm());
 }
+
+// Get cross product
+Vec3 cross(const Vec3& v1, const Vec3& v2) {
+    return Vec3{
+        v1[1] * v2[2] - v1[2] * v2[1],
+        v1[2] * v2[0] - v1[0] * v2[2],
+        v1[0] * v2[1] - v1[1] * v2[0]
+    };
+}

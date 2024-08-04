@@ -9,8 +9,11 @@
 *.out
 *.app
 
-#Mac-specific finder file
+# Mac-specific finder file
 *.DS_Store
 
-#image files
+# image files
 *.ppm
+
+# makefile
+makefile
