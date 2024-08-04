@@ -1,31 +1,11 @@
 #include <iostream>
 #include <cmath>
-// #include <vector>
 #include <fstream>
 #include <string>
 #include "vec3.h"
 #include "camera.h"
 #include "pathtracer.h"
-
-void print_path(Path& path) {
-    std::cout << "path has position " << path.position << " and direction " << path.velocity << ".\n";
-}
-
-void write_color(std::ofstream& out, const Vec3& pixel_color) {
-
-    // pixel_color values should be in the range [0,1]
-    double r_proportion {std::abs(pixel_color.e[0])};
-    double g_proportion {std::abs(pixel_color.e[1])};
-    double b_proportion {std::abs(pixel_color.e[2])};
-
-    // Convert RGB proportions to the range [0,255]
-    int r {int(r_proportion*255)};
-    int g {int(g_proportion*255)};
-    int b {int(b_proportion*255)};
-
-    // Output RGB values to output stream
-    out << r << ' ' << g << ' ' << b << '\n';
-}
+#include "background.h"
 
 // Propagate path until position vector is outside of sphere
 Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
@@ -40,24 +20,16 @@ Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
     return path.position;
 }
 
-double g_pi = 3.14159;
+Vec3 cartesian_to_spherical(const Vec3& cartesian) {
 
-Vec3 get_color(Vec3& pos) {
-    double theta = atan2(sqrt(pos[0]*pos[0]+pos[1]*pos[1]),pos[2]);
-    // double phi = atan2(pos[1], pos[0]);
-    
-    // This is a fractional color, represented as a proportion
-    Vec3 rgb {};
+    double theta { atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]) };
+    double phi { atan2(cartesian[1], cartesian[0]) };
+    double r { cartesian.norm() };
 
-    if (std::fmod(theta,g_pi/8) > g_pi/16) {
-        rgb = {1,0,0};
-    }
-    else {
-        rgb = {1, 1, 1};
-    }
-
-    return rgb;
+    return Vec3 {r, theta, phi};
 }
+
+const double g_pi = 3.14159;
 
 int main(int argc, char *argv[]) {
 
@@ -68,11 +40,11 @@ int main(int argc, char *argv[]) {
     Camera camera {camera_position, camera_direction, camera_up};
 
     // Rotate camera!
-    camera.rotate(g_pi/4,g_pi/4,g_pi/4);
+    camera.rotate(0,1.5*g_pi/8,0);
 
     // Configure image size
-    const int image_width {640};
-    const int image_height {480};
+    const int image_width {1920};
+    const int image_height {1080};
     camera.set_image_settings(image_width, image_height);
 
     // Get filename and initialize filestream
@@ -87,6 +59,10 @@ int main(int argc, char *argv[]) {
     
     // Configure background
     const double background_radius {10};
+    Background background {background_radius, Background::image};
+
+    // Get file
+    background.load_ppm("images/vista_panorama.ppm");
 
     // Configure viewport
     const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
@@ -113,12 +89,13 @@ int main(int argc, char *argv[]) {
 
             // Trace a ray till it collides
             Vec3 collision_pos = get_collision_pos(camera.get_rays()[i][j], background_radius);
+            Vec3 spherical_collision_pos { cartesian_to_spherical(collision_pos) };
 
             // Get the ray's color and save as pixel_color
-            Vec3 pixel_color = get_color(collision_pos);
+            Vec3 pixel_color = background.get_color(spherical_collision_pos);
 
             // Write color to output stream
-            write_color(filestream, pixel_color);
+            filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';
 
         }
     }

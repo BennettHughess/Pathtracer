@@ -38,7 +38,7 @@ void Camera::initialize_rays() {
             // Initialize each ray
             rays[i][j].position = position; // preferred over Path::update_position, since we want to overwrite the position
             rays[i][j].velocity = unit_vector(viewport_origin + viewport_delta_u*0.5 
-            + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v);
+                + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v);
 
         }
     }

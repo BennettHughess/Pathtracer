@@ -10,6 +10,9 @@ class Vec3 {
         // Constructors
         Vec3() : e{0,0,0} {}
         Vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
+        
+        // Copy constructor
+        Vec3(const Vec3& v) : e{v[0], v[1], v[2]} {}
 
         //Function forward declarations
         Vec3 operator-() const;
