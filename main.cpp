@@ -2,23 +2,11 @@
 #include <cmath>
 #include <fstream>
 #include <string>
+#include <functional>
 #include "vec3.h"
 #include "camera.h"
-#include "pathtracer.h"
+#include "path.h"
 #include "background.h"
-
-// Propagate path until position vector is outside of sphere
-Vec3& get_collision_pos(Path& path, double radius, double dt = 0.1) {
-
-    double path_distance {path.position.norm()};
-
-    while (path_distance < radius) {
-        path.propagate(dt);
-        path_distance = path.position.norm(); // is this inefficient?
-    }
-
-    return path.position;
-}
 
 const double g_pi = 3.14159;
 
@@ -57,7 +45,7 @@ int main(int argc, char *argv[]) {
     Camera camera {camera_position, camera_direction, camera_up};
 
     // Rotate camera!
-    camera.rotate(0,0,0);
+    camera.rotate(0,g_pi/4,0);
 
     // Configure image size
     const int image_width {1920};
@@ -82,30 +70,34 @@ int main(int argc, char *argv[]) {
     background.load_ppm("images/vista_panorama.ppm");
 
     // Configure viewport
-    const double fov {2.0}; //1.815 rads is valorant fov, 104 degrees
+    const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
     camera.set_viewport_settings(fov);
 
-    // Initialize rays (this sets up the rays array)
-    camera.initialize_rays();
+    // Initialize paths (this sets up the paths array)
+    camera.initialize_paths();
+
+    // Define the "not colliding" conditions
+    std::function<bool(Path&)> within_radius = [background_radius](Path& path) -> bool {
+        return path.get_position().norm() < background_radius;
+    };
+
+    // Pathtrace until collision happens
+    double dt {0.1};
+    camera.pathtrace(within_radius, dt);
 
     /*
-        RAY TRACING TIIIIIIIME (/◕ヮ◕)/
+        WRITE TO FILE
     */
 
     // ppm header
     filestream << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    // i,j are indices: i <-> rows, j <-> columns
     // we iterate over each pixel and set its color accordingly
     for (int i {0}; i < image_height; ++i) {
-
-        // Progress bar
-        std::clog << '\r' << int(100*(double(i)/image_height)) << "\% completed. " << std::flush;
-
         for (int j {0}; j < image_width; ++j) {
 
-            // Trace a ray till it collides
-            Vec3 collision_pos = get_collision_pos(camera.get_rays()[i][j], background_radius);
+            // Get collision position
+            Vec3 collision_pos = camera.get_paths()[i][j].get_position();
             Vec3 spherical_collision_pos { cartesian_to_spherical(collision_pos) };
 
             // Get the ray's color and save as pixel_color
@@ -113,13 +105,12 @@ int main(int argc, char *argv[]) {
 
             // Write color to output stream
             filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';
-            // filestream << spherical_collision_pos << '\n';
 
         }
     }
 
     // Finished!
-    std::clog << "\rDone.               \n";
+    std::clog << "\rDone.                           \n";
 
     filestream.close();
 

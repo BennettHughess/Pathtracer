@@ -17,28 +17,30 @@ void Camera::set_viewport_settings(double fov, double dis) {
     viewport_height = viewport_width / aspect_ratio;
 }
 
-// Initialize rays
-void Camera::initialize_rays() {
+// Initialize paths
+void Camera::initialize_paths() {
 
     // Initialize vectors to begin iterating over viewport
     viewport_origin = directionhat*viewport_distance - (viewport_width/2)*viewport_uhat - (viewport_height/2)*viewport_vhat;
     viewport_delta_u = (viewport_width/double(image_width))*viewport_uhat;
     viewport_delta_v = (viewport_height/double(image_height))*viewport_vhat;
 
-    // Resize rays array
-    rays.resize(image_height);
+    // Resize paths array
+    paths.resize(image_height);
     for (int i {0}; i < image_height; ++i) {
-        rays[i].resize(image_width);
+        paths[i].resize(image_width);
     }
 
-    // Initialize the rays array with each ray pointing out of the camera and through the viewport
+    // Initialize the paths array with each ray pointing out of the camera and through the viewport
     for (int i {0}; i < image_height; ++i) {
         for (int j {0}; j < image_width; ++j) {
 
-            // Initialize each ray
-            rays[i][j].position = position; // preferred over Path::update_position, since we want to overwrite the position
-            rays[i][j].velocity = unit_vector(viewport_origin + viewport_delta_u*0.5 
-                + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v);
+            // Initialize each path
+            paths[i][j].set_position(position); 
+            paths[i][j].set_velocity(
+                unit_vector(viewport_origin + viewport_delta_u*0.5 
+                + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v)
+            );
 
         }
     }
@@ -78,4 +80,24 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
         + axis_vector * dot(axis_vector,vector) * (1 - cos(rotation_angle))
     };
     return rotated_vector;
+}
+
+// Iterate through the paths array and pathtrace each one until condition is no longer met
+void Camera::pathtrace(std::function<bool(Path&)> condition, const double dt) {
+
+    std::clog << "Beginning pathtrace! \n";
+
+    // Loop through image
+    for (int i {0}; i < image_height; ++i) {
+
+        // Progress bar
+        std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " << std::flush;
+
+        for (int j {0}; j < image_width; ++j) {
+
+            // Trace a ray till it collides
+            paths[i][j].loop_propagate(condition, dt);
+
+        }
+    }
 }

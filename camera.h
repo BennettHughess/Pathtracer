@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "vec3.h"
-#include "pathtracer.h"
+#include "path.h"
 
 // Define Camera class (including viewport stuff)
 class Camera {
@@ -32,13 +32,13 @@ class Camera {
         double viewport_width {};
         double viewport_height {};
 
-        // Viewport needs information to begin initializing the rays
+        // Viewport needs information to begin initializing the paths
         Vec3 viewport_origin {};
         Vec3 viewport_delta_u {};
         Vec3 viewport_delta_v {};
 
-        // Declare the array of rays
-        std::vector<std::vector<Path>> rays {};
+        // Declare the array of paths
+        std::vector<std::vector<Path>> paths {};
 
     public:
 
@@ -57,7 +57,7 @@ class Camera {
         } 
 
         // Access functions
-        std::vector<std::vector<Path>>& get_rays() { return rays; }
+        std::vector<std::vector<Path>>& get_paths() { return paths; }
 
         // Initialize viewport stuff
 
@@ -68,13 +68,16 @@ class Camera {
         void set_viewport_settings(double fov, double dis = 1);
 
         // Initialize viewport
-        void initialize_rays();
+        void initialize_paths();
 
         // Update the uhat and vhat vectors
         void update_viewport_vectors();
 
         // Rotate camera
         void rotate(const double pitch_angle, const double yaw_angle, const double roll_angle);
+
+        // Pathtrace until condition is no longer met (condition is a lambda function)
+        void pathtrace(std::function<bool(Path&)> condition, const double dt);
 
 };
 

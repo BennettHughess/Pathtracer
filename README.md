@@ -26,7 +26,7 @@ Current files:
     - Compile and run this to execute the main code.
 - `vec3.h` and `vec3.cpp`
     - These files contains the `Vec3` class, which describes three-dimensional vectors.
-- `pathtracer.h` and `pathtracer.cpp`
-    - These files contain the `Path` class, which allows for pathtracing.
+- `path.h` and `path.cpp`
+    - These files contain the `Path` class, which contain basic tools for pathtracing.
 - `camera.cpp` and `camera.h`
-    - These files contain the `Camera` class, which provides the code for generating a camera, viewport, and various related functions like rotations.
+    - These files contain the `Camera` class, which provides the code for generating a camera, viewport, and various related functions like rotations and pathtracing.

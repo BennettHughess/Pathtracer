@@ -44,7 +44,7 @@ double Vec3::norm() const {
 
 // Add two vectors and store as new vector
 Vec3 operator+(const Vec3& v1, const Vec3& v2) {
-    return Vec3(v1.e[0]+v2.e[0], v1.e[1]+v2.e[1], v1.e[2]+v2.e[2]);
+    return Vec3(v1[0]+v2[0], v1[1]+v2[1], v1[2]+v2[2]);
 }
 
 // Subtract two vectors and store as new vector
@@ -54,12 +54,12 @@ Vec3 operator-(const Vec3& v1, const Vec3& v2) {
 
 // Take dot product of two vectors and store as double
 double dot(const Vec3& v1, const Vec3& v2) {
-    return std::sqrt(v1.e[0]*v2.e[0] + v1.e[1]*v2.e[1] + v1.e[2]*v2.e[2]); 
+    return std::sqrt(v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]); 
 }
 
 // Multiply vector by scalar and save as new vector (made commutative)
 Vec3 operator*(const Vec3& v, double t) {
-    return Vec3(v.e[0]*t, v.e[1]*t, v.e[2]*t);
+    return Vec3(v[0]*t, v[1]*t, v[2]*t);
 }
 Vec3 operator*(double t, const Vec3& v) {
     return v*t;
@@ -67,7 +67,7 @@ Vec3 operator*(double t, const Vec3& v) {
 
 // Output code
 std::ostream& operator<<(std::ostream& out, const Vec3& v) {
-    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
+    return out << v[0] << ' ' << v[1] << ' ' << v[2];
 }
 
 // Get unit vector
