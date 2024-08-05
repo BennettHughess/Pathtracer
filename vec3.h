@@ -4,6 +4,7 @@
 // define class Vec3
 class Vec3 {
     private:
+    
         // define vectors as having an array of three doubles (the components)
         double e[3];
     
@@ -11,6 +12,7 @@ class Vec3 {
         // Constructors
         Vec3() : e{0,0,0} {}
         Vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
+        Vec3(double v[3]) : e { v[0], v[1], v[2] } {}
         
         // Copy constructor
         Vec3(const Vec3& v) : e{v[0], v[1], v[2]} {}
@@ -48,3 +50,20 @@ Vec3 unit_vector(const Vec3& v);
 
 // Get cross product
 Vec3 cross(const Vec3& v1, const Vec3& v2);
+
+/*
+    COORDINATE SYSTEMS
+*/
+
+
+// 3-vectors have a coordinate system
+namespace CoordinateSystem3 {
+
+    Vec3 Cartesian_to_Spherical(Vec3& cartesian);
+
+    Vec3 Spherical_to_Cartesian(Vec3& spherical);
+
+    // converts a cartesian vector at a given spherical position to a spherical vector
+    Vec3 CartesianVector_to_SphericalVector(Vec3& cartesian_vec, Vec3& spherical_pos);
+    
+};

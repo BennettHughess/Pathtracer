@@ -4,48 +4,22 @@
 #include <string>
 #include <functional>
 #include "vec3.h"
+#include "vec4.h"
 #include "camera.h"
 #include "path.h"
 #include "background.h"
 
-const double g_pi = 3.14159;
-
-Vec3 cartesian_to_spherical(const Vec3& cartesian) {
-
-    double theta { atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]) };
-
-    double phi {};
-    if (cartesian[0] >= 0 && cartesian[1] >= 0) {
-        phi = atan(cartesian[1]/cartesian[0]);
-    }
-    else if (cartesian[0] < 0 && cartesian[1] >= 0) {
-        phi = g_pi/2 + atan(-cartesian[0]/cartesian[1]);
-    }
-    else if (cartesian[0] < 0 && cartesian[1] < 0) {
-        phi = g_pi + atan(cartesian[1]/cartesian[0]);
-    }
-    else if (cartesian[0] >= 0 && cartesian[1] < 0) {
-        phi = 3*g_pi/2 + atan(-cartesian[0]/cartesian[1]);
-    }
-    else {
-        phi = 0;
-    }
-
-    double r { cartesian.norm() };
-
-    return Vec3 {r, theta, phi};
-}
-
 int main(int argc, char *argv[]) {
 
     // Configure camera position and direction
-    Vec3 camera_position {0,0,-5};
-    Vec3 camera_direction {-1,0,0};
+    Vec3 camera_position {-5,0,0};
+    Vec3 camera_direction {1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
 
+    double pi = 3.141459;
     // Rotate camera!
-    camera.rotate(0,g_pi/4,0);
+    camera.rotate(0,0,0);
 
     // Configure image size
     const int image_width {1920};
@@ -67,23 +41,38 @@ int main(int argc, char *argv[]) {
     Background background {background_radius, Background::image};
 
     // Get file
-    background.load_ppm("images/vista_panorama.ppm");
+    background.load_ppm("images/vista_panorama_hres.ppm");
 
     // Configure viewport
     const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
     camera.set_viewport_settings(fov);
 
+    /*
+        RAY TRACING TIME BABY
+    */
+
+    // Initialize a metric,
+    double black_hole_mass {1};
+    Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
+
     // Initialize paths (this sets up the paths array)
-    camera.initialize_paths();
+    camera.initialize_paths(metric);
 
     // Define the "not colliding" conditions
-    std::function<bool(Path&)> within_radius = [background_radius](Path& path) -> bool {
-        return path.get_position().norm() < background_radius;
+    std::function<bool(Path&)> within_radius = [background_radius, black_hole_mass](Path& path) -> bool {
+        
+        // get radius
+        double radius = path.get_position()[1];
+
+        // Collision happens when photon is outside background or close to event horizon
+        bool not_collided_bool { radius < background_radius && radius > 2*black_hole_mass+0.1 };
+
+        return not_collided_bool;
     };
 
     // Pathtrace until collision happens
     double dt {0.1};
-    camera.pathtrace(within_radius, dt);
+    camera.pathtrace(within_radius, dt, metric);
 
     /*
         WRITE TO FILE
@@ -97,8 +86,10 @@ int main(int argc, char *argv[]) {
         for (int j {0}; j < image_width; ++j) {
 
             // Get collision position
-            Vec3 collision_pos = camera.get_paths()[i][j].get_position();
-            Vec3 spherical_collision_pos { cartesian_to_spherical(collision_pos) };
+            Vec3 collision_pos = camera.get_paths()[i][j].get_position().get_vec3();
+            Vec3 spherical_collision_pos { CoordinateSystem3::Cartesian_to_Spherical(collision_pos) };
+
+            // std::clog << "collision is at " << spherical_collision_pos << '\n';
 
             // Get the ray's color and save as pixel_color
             Vec3 pixel_color = background.get_color(spherical_collision_pos);

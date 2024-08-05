@@ -1,5 +1,7 @@
 #include <cmath>
+#include <iostream>
 #include "camera.h"
+#include "metric.h"
 
 // Set image variables in the Camera class
 void Camera::set_image_settings(int width, int height) {
@@ -18,7 +20,7 @@ void Camera::set_viewport_settings(double fov, double dis) {
 }
 
 // Initialize paths
-void Camera::initialize_paths() {
+void Camera::initialize_paths(Metric& metric) {
 
     // Initialize vectors to begin iterating over viewport
     viewport_origin = directionhat*viewport_distance - (viewport_width/2)*viewport_uhat - (viewport_height/2)*viewport_vhat;
@@ -35,12 +37,26 @@ void Camera::initialize_paths() {
     for (int i {0}; i < image_height; ++i) {
         for (int j {0}; j < image_width; ++j) {
 
-            // Initialize each path
-            paths[i][j].set_position(position); 
-            paths[i][j].set_velocity(
-                unit_vector(viewport_origin + viewport_delta_u*0.5 
-                + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v)
-            );
+            // Get camera position in spherical coords
+            Vec3 spherical_position { CoordinateSystem3::Cartesian_to_Spherical(position) };
+
+            // Path will begin at t=0 at the camera positon
+            Vec4 path_position { Vec4{0, spherical_position} };
+
+            // std::cout << "paths are starting at " << path_position << '\n';
+
+            // initial position is in spherical coordinates
+            paths[i][j].set_position( path_position ); 
+
+            // paths will point in the direction of the pixel
+            Vec3 unit_direction { unit_vector(viewport_origin + viewport_delta_u*0.5 
+                + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v) };
+
+            // Convert unit_direction to spherical coordinates (minkowski not supported yet)
+            Vec3 spherical_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, position);
+
+            // path with null velocity (speed of light)
+            paths[i][j].set_velocity( convert_to_null(spherical_unit_direction, path_position, metric) );
 
         }
     }
@@ -83,7 +99,7 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
 }
 
 // Iterate through the paths array and pathtrace each one until condition is no longer met
-void Camera::pathtrace(std::function<bool(Path&)> condition, const double dt) {
+void Camera::pathtrace(std::function<bool(Path&)> condition, const double dtau, Metric& metric) {
 
     std::clog << "Beginning pathtrace! \n";
 
@@ -96,7 +112,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dt) {
         for (int j {0}; j < image_width; ++j) {
 
             // Trace a ray till it collides
-            paths[i][j].loop_propagate(condition, dt);
+            paths[i][j].loop_propagate(condition, dtau, metric);
 
         }
     }

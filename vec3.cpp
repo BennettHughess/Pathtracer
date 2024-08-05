@@ -54,7 +54,7 @@ Vec3 operator-(const Vec3& v1, const Vec3& v2) {
 
 // Take dot product of two vectors and store as double
 double dot(const Vec3& v1, const Vec3& v2) {
-    return std::sqrt(v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]); 
+    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]; 
 }
 
 // Multiply vector by scalar and save as new vector (made commutative)
@@ -82,4 +82,45 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
         v1[2] * v2[0] - v1[0] * v2[2],
         v1[0] * v2[1] - v1[1] * v2[0]
     };
+}
+
+/*
+    COORDINATE SYSTEMS
+*/
+
+Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
+
+    double theta { atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]) };
+    double phi { atan2(cartesian[1],cartesian[0]) + M_PI };
+    double r { cartesian.norm() };
+
+    return Vec3 {r, theta, phi};
+}
+
+
+Vec3 CoordinateSystem3::Spherical_to_Cartesian(Vec3& spherical) {
+
+    double x { spherical[0]*sin(spherical[1])*cos(spherical[2]) };
+    double y { spherical[0]*sin(spherical[1])*sin(spherical[2]) };
+    double z { spherical[0]*cos(spherical[1]) };
+
+    return Vec3 {x, y, z};
+}
+
+Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cartesian_vec, Vec3& spherical_pos) {
+
+    double theta { -sin(spherical_pos[2])*cartesian_vec[0] + cos(spherical_pos[2])*cartesian_vec[1] };
+    double phi { 
+        cos(spherical_pos[1])*cos(spherical_pos[2])*cartesian_vec[0] 
+        + cos(spherical_pos[1])*sin(spherical_pos[2])*cartesian_vec[1]
+        - sin(spherical_pos[1])*cartesian_vec[2]
+    };
+    double r {  
+        sin(spherical_pos[1])*cos(spherical_pos[2])*cartesian_vec[0] 
+        + sin(spherical_pos[1])*sin(spherical_pos[2])*cartesian_vec[1]
+        + cos(spherical_pos[1])*cartesian_vec[2]
+    };
+
+    return Vec3 {r, theta, phi};
+
 }

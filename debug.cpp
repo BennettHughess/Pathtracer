@@ -1,28 +1,20 @@
-#include "background.h"
 #include <string>
 #include <vector>
-#include "vec3.h"
+#include "vec4.h"
+#include "metric.h"
 #include <iostream>
 
 int main() {
 
-    // Get file
-    std::string filename {"images/vista_panorama.ppm"};
+    double pi = 3.14159;
 
-    std::cout << "filename set \n";
+    Metric metric { Metric::SchwarzschildMetric };
 
-    // Declare background
-    Background background {10, Background::image};
+    Vec4 pos {0, 3, pi/2, 0};
 
-    std::cout << "background initialized. doing something before we load ppm: \n";
+    Vec4 vel {1, 0, 1, 0};
 
-    // Load the file
-    background.load_ppm(filename);
-
-    std::cout << "ppm loaded \n";
-
-    // Print the file
-    background.save_ppm("debug.ppm"); //prints fine!
+    std::cout << "acceleration for this thing is " << metric.get_acceleration(pos,vel) << '\n';
 
     return 0;
 }

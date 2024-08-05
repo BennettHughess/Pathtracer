@@ -121,6 +121,8 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
 
         Vec3 color { image_array[y_pixel][x_pixel] };
 
+        // std::cout << "color got: " << color << '\n';
+
         return color;
 
     }
