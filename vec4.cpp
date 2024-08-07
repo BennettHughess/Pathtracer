@@ -37,12 +37,12 @@ Vec4& Vec4::operator*=(double t) {
 }
 
 // Compute norm
-double Vec4::norm(Metric& metric, Vec4& position) {
+double Vec4::norm_squared(Metric& metric, Vec4& position) {
     std::vector<double> components = metric.get_components(position);
     double norm_squared {
         components[0]*e[0]*e[0] + components[1]*e[1]*e[1] + components[2]*e[2]*e[2] + components[3]*e[3]*e[3]
     };
-    return std::sqrt(norm_squared); // NOTE! if norm_squared is zero this could be NaN (sqrt(-1))
+    return norm_squared; 
 }
 
 /*

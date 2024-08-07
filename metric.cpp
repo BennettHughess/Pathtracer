@@ -9,9 +9,24 @@ std::vector<double> Metric::get_components(const Vec4& position) {
     // Check which type of metric it is
     switch (type) {
 
-        case MinkowskiMetric:
+        case SphericalMinkowskiMetric:
 
-            components = {-1, 1, 1, 1};
+            components = {
+                -1, 
+                1, 
+                position[1]*position[1], 
+                position[1]*position[1]*sin(position[2])*sin(position[2])
+            };
+            break;
+
+        case CartesianMinkowskiMetric:
+
+            components = {
+                -1, 
+                1, 
+                1, 
+                1
+            };
             break;
             
         case SchwarzschildMetric:
@@ -36,7 +51,24 @@ Vec4 Metric::get_acceleration(Vec4& pos, Vec4& vel) {
 
      switch (type) {
 
-        case MinkowskiMetric:
+        case SphericalMinkowskiMetric:
+
+            acceleration = {
+
+                0,                                                  // time component
+
+                pos[1]*vel[2]*vel[2]                                // r component
+                + pos[1]*sin(pos[2])*sin(pos[2])*vel[3]*vel[3],
+
+                sin(pos[2])*cos(pos[2])*vel[3]*vel[3]               // theta component
+                - (2/pos[1])*vel[1]*vel[2],
+
+                -(2/pos[1])*vel[1]*vel[3]                           // phi component
+                - (2/tan(pos[2]))*vel[2]*vel[3]
+            };
+            break;
+
+        case CartesianMinkowskiMetric:
 
             // All christoffel symbols are zero for the Minkowski metric in (t,x,y,z) coords
             acceleration = {
@@ -46,18 +78,24 @@ Vec4 Metric::get_acceleration(Vec4& pos, Vec4& vel) {
                 0
             };
             break;
+
             
         case SchwarzschildMetric:
 
             // Acceleration is computed from the geodesic equation
             acceleration = {
+
                 (-2*mass/(pos[1]*pos[1]))*(1/(1 - 2*mass/pos[1]))*vel[1]*vel[0],            // time component
+
                 (-mass/(pos[1]*pos[1]))*(1 - 2*mass/pos[1])*vel[0]*vel[0]                   // this whole thing is
                     + (mass/(pos[1]*pos[1]))*(1/(1 - 2*mass/pos[1]))*vel[1]*vel[1]          // the radial component
                     + pos[1]*(1 - 2*mass/pos[1])*vel[2]*vel[2]
                     + pos[1]*sin(pos[2])*sin(pos[2])*(1 - 2*mass/pos[1])*vel[3]*vel[3],
-                (-2/pos[1])*vel[2]*vel[1] + sin(pos[2])*cos(pos[2])*vel[2]*vel[2],          // theta component
+
+                (-2/pos[1])*vel[2]*vel[1] + sin(pos[2])*cos(pos[2])*vel[3]*vel[3],          // theta component
+
                 (-2/pos[1])*vel[3]*vel[1] - (2/tan(pos[2]))*vel[3]*vel[2]                   // phi component
+
             };
             break;
 

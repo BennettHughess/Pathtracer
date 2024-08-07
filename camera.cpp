@@ -20,7 +20,7 @@ void Camera::set_viewport_settings(double fov, double dis) {
 }
 
 // Initialize paths
-void Camera::initialize_paths(Metric& metric) {
+void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
 
     // Initialize vectors to begin iterating over viewport
     viewport_origin = directionhat*viewport_distance - (viewport_width/2)*viewport_uhat - (viewport_height/2)*viewport_vhat;
@@ -33,17 +33,38 @@ void Camera::initialize_paths(Metric& metric) {
         paths[i].resize(image_width);
     }
 
+    // Get metric type for the coming switch statement
+    Metric::MetricType metrictype { metric.get_type() };
+
+    // Declare initial position and initial velocity direction
+    Vec3 initial_position {};
+    Vec3 adapted_unit_direction{};
+
+    // Figure out which coordinate system to use for which metric
+    switch (metrictype) {
+
+        case Metric::CartesianMinkowskiMetric:
+            initial_position = position;
+            break;
+
+        case Metric::SphericalMinkowskiMetric:
+            initial_position = CoordinateSystem3::Cartesian_to_Spherical(position);
+            break;
+
+        case Metric::SchwarzschildMetric:
+            initial_position = CoordinateSystem3::Cartesian_to_Spherical(position);
+            break;
+
+    }
+
     // Initialize the paths array with each ray pointing out of the camera and through the viewport
     for (int i {0}; i < image_height; ++i) {
         for (int j {0}; j < image_width; ++j) {
 
-            // Get camera position in spherical coords
-            Vec3 spherical_position { CoordinateSystem3::Cartesian_to_Spherical(position) };
+            // Path will begin at t=0 at the already determined initial position (camera's coordinates in different systems)
+            Vec4 path_position { Vec4{0, initial_position} };
 
-            // Path will begin at t=0 at the camera positon
-            Vec4 path_position { Vec4{0, spherical_position} };
-
-            // std::cout << "paths are starting at " << path_position << '\n';
+            // std::cout << "camera.cpp: paths are starting at " << path_position << '\n';
 
             // initial position is in spherical coordinates
             paths[i][j].set_position( path_position ); 
@@ -52,11 +73,30 @@ void Camera::initialize_paths(Metric& metric) {
             Vec3 unit_direction { unit_vector(viewport_origin + viewport_delta_u*0.5 
                 + viewport_delta_v*0.5 + j*viewport_delta_u + i*viewport_delta_v) };
 
-            // Convert unit_direction to spherical coordinates (minkowski not supported yet)
-            Vec3 spherical_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, position);
+            // convert from camera coordinates to spacetime coordinates
+            switch (metrictype) {
+
+                case Metric::CartesianMinkowskiMetric: 
+                    adapted_unit_direction = unit_direction;
+                    break;
+
+                case Metric::SphericalMinkowskiMetric:
+                    adapted_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, initial_position);
+                    break;
+
+                case Metric::SchwarzschildMetric:
+                    adapted_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, initial_position);
+                    break;
+
+            }
+
+            //  dstd::cout << "Camera.cpp: ray " << i << ' ' << j << ": direction: " << adapted_unit_direction << '\n';
 
             // path with null velocity (speed of light)
-            paths[i][j].set_velocity( convert_to_null(spherical_unit_direction, path_position, metric) );
+            paths[i][j].set_velocity( convert_to_null(adapted_unit_direction, path_position, metric) );
+
+            // set path with an integrator
+            paths[i][j].set_integrator(integrator);
 
         }
     }
@@ -99,7 +139,7 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
 }
 
 // Iterate through the paths array and pathtrace each one until condition is no longer met
-void Camera::pathtrace(std::function<bool(Path&)> condition, const double dtau, Metric& metric) {
+void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
 
     std::clog << "Beginning pathtrace! \n";
 
@@ -112,7 +152,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dtau, 
         for (int j {0}; j < image_width; ++j) {
 
             // Trace a ray till it collides
-            paths[i][j].loop_propagate(condition, dtau, metric);
+            paths[i][j].loop_propagate(condition, dlam, metric);
 
         }
     }

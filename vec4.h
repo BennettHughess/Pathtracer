@@ -40,7 +40,7 @@ class Vec4 {
         Vec4& operator*=(double t);
 
         // Note: norm depends on the metric, which depends on the position of the vector
-        double norm(Metric& metric, Vec4& position);
+        double norm_squared(Metric& metric, Vec4& position);
 };
 
 // More forward declarations

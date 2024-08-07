@@ -88,12 +88,43 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
     COORDINATE SYSTEMS
 */
 
+double m_pi = 3.14159;
+
 Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
-
-    double theta { atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]) };
-    double phi { atan2(cartesian[1],cartesian[0]) + M_PI };
+    
     double r { cartesian.norm() };
+    double theta {};
+    double phi {};
 
+    if (r != 0) {
+
+        theta = atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]);
+        
+        /*
+        if (cartesian[0] >= 0 && cartesian[1] >= 0) {
+            phi = atan(cartesian[1]/cartesian[0]);
+        }
+        else if (cartesian[0] < 0 && cartesian[1] >= 0) {
+            phi = m_pi/2 + atan(-cartesian[0]/cartesian[1]);
+        }
+        else if (cartesian[0] < 0 && cartesian[1] < 0) {
+            phi = m_pi + atan(cartesian[1]/cartesian[0]);
+        }
+        else if (cartesian[0] >= 0 && cartesian[1] < 0) {
+            phi = 3*m_pi/2 + atan(-cartesian[0]/cartesian[1]);
+        }
+        else {
+            std::clog << "Issue converting cartesian to spherical." << '\n';
+        }
+        */
+        
+        phi = atan2(cartesian[1],cartesian[0]);
+
+    }
+    else {
+        theta = 0;
+        phi = 0;
+    }
     return Vec3 {r, theta, phi};
 }
 
@@ -107,20 +138,26 @@ Vec3 CoordinateSystem3::Spherical_to_Cartesian(Vec3& spherical) {
     return Vec3 {x, y, z};
 }
 
-Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cartesian_vec, Vec3& spherical_pos) {
 
-    double theta { -sin(spherical_pos[2])*cartesian_vec[0] + cos(spherical_pos[2])*cartesian_vec[1] };
-    double phi { 
-        cos(spherical_pos[1])*cos(spherical_pos[2])*cartesian_vec[0] 
-        + cos(spherical_pos[1])*sin(spherical_pos[2])*cartesian_vec[1]
-        - sin(spherical_pos[1])*cartesian_vec[2]
-    };
+// cvec is  a cartesian vector, spos is spherical position
+Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cvec, Vec3& spos) {
+
     double r {  
-        sin(spherical_pos[1])*cos(spherical_pos[2])*cartesian_vec[0] 
-        + sin(spherical_pos[1])*sin(spherical_pos[2])*cartesian_vec[1]
-        + cos(spherical_pos[1])*cartesian_vec[2]
+       cvec[0]*cos(spos[2])*sin(spos[1]) + cvec[1]*sin(spos[1])*sin(spos[2]) + cvec[2]*cos(spos[1])
+    };
+    double theta {
+        cvec[0]*cos(spos[1])*cos(spos[2]) + cvec[1]*cos(spos[1])*sin(spos[2]) - cvec[2]*sin(spos[1])
+    };
+    double phi { 
+        -cvec[0]*sin(spos[2]) + cvec[1]*cos(spos[2])
     };
 
     return Vec3 {r, theta, phi};
 
+}
+
+
+// Maps vector to itself
+Vec3 IdentityMap(Vec3& v) {
+    return v;
 }

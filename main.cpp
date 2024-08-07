@@ -11,8 +11,8 @@
 
 int main(int argc, char *argv[]) {
 
-    // Configure camera position and direction
-    Vec3 camera_position {-5,0,0};
+    // Camera position and direction are in cartesian (x,y,z) coordinates
+    Vec3 camera_position {-15,0,0};
     Vec3 camera_direction {1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Configure background
-    const double background_radius {10};
+    const double background_radius {20};
     Background background {background_radius, Background::image};
 
     // Get file
@@ -52,27 +52,35 @@ int main(int argc, char *argv[]) {
     */
 
     // Initialize a metric,
-    double black_hole_mass {1};
+    double black_hole_mass {3};
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
     // Initialize paths (this sets up the paths array)
-    camera.initialize_paths(metric);
+    Path::Integrator integrator {Path::Euler};
+    camera.initialize_paths(metric, integrator);
 
-    // Define the "not colliding" conditions
-    std::function<bool(Path&)> within_radius = [background_radius, black_hole_mass](Path& path) -> bool {
+    // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
+    std::function<bool(Path&)> collision_checker = [background_radius, black_hole_mass](Path& path) -> bool {
         
         // get radius
         double radius = path.get_position()[1];
 
-        // Collision happens when photon is outside background or close to event horizon
-        bool not_collided_bool { radius < background_radius && radius > 2*black_hole_mass+0.1 };
+        // Collision happens when photon is outside background
+        bool inside_background { radius < background_radius };
 
-        return not_collided_bool;
+        // if (!inside_background) { std::cout << "main.cpp: collision detected at position " << path.get_position().get_vec3() << '\n'; }
+
+        // or close to event horizon
+        bool far_from_event_horizon { radius > 2.1*black_hole_mass} ;
+
+        return inside_background && far_from_event_horizon;
     };
 
-    // Pathtrace until collision happens
+    // Pathtrace until a collision happens
     double dt {0.1};
-    camera.pathtrace(within_radius, dt, metric);
+    camera.pathtrace(collision_checker, dt, metric);
+
+    std::cout << "writing to file!" << '\n';
 
     /*
         WRITE TO FILE
@@ -87,12 +95,12 @@ int main(int argc, char *argv[]) {
 
             // Get collision position
             Vec3 collision_pos = camera.get_paths()[i][j].get_position().get_vec3();
-            Vec3 spherical_collision_pos { CoordinateSystem3::Cartesian_to_Spherical(collision_pos) };
+            //Vec3 spherical_collision_pos = CoordinateSystem3::Cartesian_to_Spherical(collision_pos);
 
-            // std::clog << "collision is at " << spherical_collision_pos << '\n';
+            // std::clog << "collision for " << i << ' ' << j << " is at " << collision_pos << '\n';
 
             // Get the ray's color and save as pixel_color
-            Vec3 pixel_color = background.get_color(spherical_collision_pos);
+            Vec3 pixel_color = background.get_color(collision_pos); // NOTE what is passed depends on the metric of choice
 
             // Write color to output stream
             filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';

@@ -30,7 +30,10 @@ void Background::load_ppm(const std::string filename) {
         }
 
         // Skip next line (is just 255)
-        filestream >> throwaway_line;
+        int max_color_value {};
+        std::string max_color_value_string {};
+        filestream >> max_color_value_string;
+        max_color_value = std::stoi(max_color_value_string);
 
         // Declare some variables for the coming loop
         std::string color {};
@@ -45,13 +48,13 @@ void Background::load_ppm(const std::string filename) {
 
                 // Take r, g, b as it comes out of the stream
                 filestream >> color;
-                r = std::stoi(color);
+                r = int(std::stoi(color)*255/max_color_value);          // compress to a 255 maximum color value
 
                 filestream >> color;
-                g = std::stoi(color);
+                g = int(std::stoi(color)*255/max_color_value);
 
                 filestream >> color;
-                b = std::stoi(color);
+                b = int(std::stoi(color)*255/max_color_value);
 
                 // Save r, g ,b to a vector
                 Vec3 rgb {double(r), double(g), double(b)};
@@ -111,17 +114,38 @@ void Background::save_ppm(const std::string filename) {
 Vec3 Background::get_color(Vec3& spherical_coordinates) {
     // note: spherical coordinates should be in r, theta, phi
 
+    // std::cout << "get_color recieving coordinates " << spherical_coordinates << '\n';
+
+    Vec3 color;
+
     if (image_been_loaded && type == image) {
 
-        // We project the image onto the sphere using equirectangular projection
-        // The size of each pixel is
+        // Check if collision was at background
+        if (spherical_coordinates[0] >= radius) {
 
-        int x_pixel = int(spherical_coordinates[2]*image_width/(2*m_pi));
-        int y_pixel = int(spherical_coordinates[1]*image_height/m_pi);
+            // Check if coordinates are in bounds
+            if (spherical_coordinates[1] >= 0 && 
+            spherical_coordinates[1] <= m_pi && 
+            spherical_coordinates[2] >= 0 && 
+            spherical_coordinates[2] <= 2*m_pi) {
 
-        Vec3 color { image_array[y_pixel][x_pixel] };
+                // We project the image onto the sphere using equirectangular projection
+                int x_pixel = int(spherical_coordinates[2]*image_width/(2*m_pi));
+                int y_pixel = int(spherical_coordinates[1]*image_height/m_pi);
 
-        // std::cout << "color got: " << color << '\n';
+                color = { image_array[y_pixel][x_pixel] };
+                
+            }
+            // if not in bounds, set to error green
+            else {
+                color = {0, 255, 0};
+            }
+        }
+        // if not (for example, if at event horizon) then set to black
+        else {
+            color = {0,0,0};
+        }
+        
 
         return color;
 
@@ -129,15 +153,15 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
     else if (type == layered) {
         
         if (fmod(spherical_coordinates[1],m_pi/8)> m_pi/16) {
-            Vec3 color { 255, 0, 0 };
+            color = { 255, 0, 0 };
             return color;
         }
         else if (fmod(spherical_coordinates[2],m_pi/8)> m_pi/16) {
-            Vec3 color { 0, 255, 0 };
+            color = { 0, 255, 0 };
             return color;
         }
         else {
-            Vec3 color { 255, 255, 255 };
+            color = { 255, 255, 255 };
             return color;
         }
 
@@ -145,7 +169,7 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
     else {
 
         std::cerr << "Image was not loaded prior to raytracing or unknown type. \n";
-        Vec3 color { 0, 0, 0 };
+        color = { 0, 0, 0 };
         return color;
 
     }

@@ -10,8 +10,9 @@ class Metric {
 
         // This is passed to the constructor during initialization
         enum MetricType{
-            MinkowskiMetric,            // assumes (t, x, y, z) coordinates
-            SchwarzschildMetric         // assumes (t, r, theta, phi) coordinates
+            SphericalMinkowskiMetric,               // assumes (t, r, theta, phi) coordinates
+            CartesianMinkowskiMetric,               // assumes (t, x, y, z) coordinates
+            SchwarzschildMetric                     // assumes (t, r, theta, phi) coordinates
         };
     
     private:
@@ -26,6 +27,9 @@ class Metric {
 
         // Constructor
         Metric(MetricType t, double m = 1) : type {t}, mass {m} {}
+
+        // Access function
+        MetricType get_type() { return type; }
 
         // Get metric components at a point in spacetime
         std::vector<double> get_components(const Vec4& position);
