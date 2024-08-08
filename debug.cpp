@@ -9,51 +9,78 @@ int main() {
 
     double pi {3.14159};
 
-    Vec3 spherical_position { 1, pi/2, pi };
+    // Make two metrics
+    Metric spherical_metric { Metric::SphericalMinkowskiMetric};
+    Metric cartesian_metric { Metric::CartesianMinkowskiMetric};
 
-    Vec3 cartesian_vector { 0, 0, -1 };
+    // Cartesian 3-position and 3-velocity
+    Vec3 cartesian_position3 {1, 10, -1};
+    Vec3 cartesian_velocity3 {4, 2, 0.1};
 
-    Vec3 new_vector { CoordinateSystem3::CartesianVector_to_SphericalVector(cartesian_vector, spherical_position) };
+    // Spherical position and 3-velocity
+    Vec3 spherical_position3 { CoordinateSystem3::Cartesian_to_Spherical(cartesian_position3) };
+    Vec3 spherical_velocity3 { CoordinateSystem3::CartesianVector_to_SphericalVector(cartesian_velocity3, spherical_position3) };
 
-    std::cout << cartesian_vector << " at " << spherical_position << " is " << new_vector << '\n';
+    // stuff
+    Vec3 cartpvec = CoordinateSystem3::Spherical_to_Cartesian(spherical_position3);
+    cartpvec = cartpvec + 0.1*cartesian_velocity3;
+    cartpvec = CoordinateSystem3::Cartesian_to_Spherical(cartpvec);
+    Vec3 minus_spherical_position = -spherical_position3;
+    cartpvec += minus_spherical_position;
+    std::cout << "cartpvec: " << cartpvec << '\n';
 
-    /*
-    double pi {3.14159};
+    // Make 4-positions and 4-velocities
+    Vec4 cartesian_position4 {0, cartesian_position3};
+    Vec4 cartesian_velocity4 {convert_to_null(cartesian_velocity3, cartesian_position4, cartesian_metric)};
 
-    double black_hole_mass {10};
+    Vec4 spherical_position4 {0, spherical_position3};
+    // Vec4 spherical_velocity4 {convert_to_null(cartpvec, spherical_position4, spherical_metric)}; // cartpvec version
+    Vec4 spherical_velocity4 {convert_to_null(spherical_velocity3, spherical_position4, spherical_metric)};
 
-    Metric metric { Metric::CartesianMinkowskiMetric, black_hole_mass };
 
-    Vec4 position {0, 0, 0, 0};
+    // Spherical and cartesian paths
+    Path::Integrator integrator {Path::Euler};
+    Path cartesian_path { cartesian_position4, cartesian_velocity4, integrator };
+    Path spherical_path { spherical_position4, spherical_velocity4, integrator };
 
-    Vec3 velocity3 {1, 0, 0};
+    std::cout << "cartesian initial path position: " << cartesian_path.get_position() << " velocity: " << cartesian_path.get_velocity() << '\n';
+    std::cout << "spherical initial path position: " << spherical_path.get_position() << " velocity: " << spherical_path.get_velocity() << '\n';
 
-    Vec4 null_velocity {convert_to_null(velocity3, position, metric)};
 
-    Path path {position, null_velocity, Path::Verlet};
+    // Propagate paths
+    double dlam {0.0001};
+    double radius {0};
+    while (radius < 100) {
 
-    // Define the "not colliding" conditions
-    std::function<bool(Path&)> within_radius = [black_hole_mass, &metric](Path& path) -> bool {
-        
-        // get radius
-        double radius = path.get_position().get_vec3().norm();
-        std::cout << "positon: " << path.get_position() << " with norm " << path.get_velocity().norm_squared(metric, path.get_position()) << '\n';
+        cartesian_path.propagate(dlam, cartesian_metric);
+        radius = cartesian_path.get_position().get_vec3().norm();
 
-        // Collision happens 
-        bool not_collided_bool { radius < 100};
+    }
 
-        return not_collided_bool;
-    };
+    radius = 0;
+    while (radius < 100) {
 
-    std::cout << "initial velocity: " << path.get_velocity() << " with norm squared " 
-        << path.get_velocity().norm_squared(metric, path.get_position()) << '\n';
+        spherical_path.propagate(dlam, spherical_metric);
+        radius = spherical_path.get_position()[0];
 
-    path.loop_propagate(within_radius, 0.001, metric);
+    }
 
-    std::cout << "final velocity: " << path.get_velocity() << " with norm squared " 
-        << path.get_velocity().norm_squared(metric, path.get_position()) << '\n';
+    std::cout << "cartesian position: " << cartesian_path.get_position().get_vec3() << '\n';
+    std::cout << "spherical position: " << spherical_path.get_position().get_vec3() << '\n';
 
-    */
+    Vec3 spherical_final_pos {spherical_path.get_position().get_vec3()};
+    Vec3 spherical_final_pos_in_cart {CoordinateSystem3::Spherical_to_Cartesian(spherical_final_pos)};
+
+    Vec3 cartesian_final_pos {cartesian_path.get_position().get_vec3()};
+    Vec3 cartesian_final_pos_in_sphere {CoordinateSystem3::Cartesian_to_Spherical(cartesian_final_pos)};
+
+    std::cout << "cartesian position in spherical coords: " << cartesian_final_pos_in_sphere << '\n';
+    std::cout << "spherical position in cartesian coords: " << spherical_final_pos_in_cart << '\n';
+
+    double difference {(spherical_final_pos_in_cart - cartesian_path.get_position().get_vec3()).norm()};
+
+    std::cout << "difference: " << difference << '\n';
+
 
     return 0;
 }

@@ -95,6 +95,8 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
             // path with null velocity (speed of light)
             paths[i][j].set_velocity( convert_to_null(adapted_unit_direction, path_position, metric) );
 
+            // std::cout << "Camera.cpp: ray " << i << ' ' << j << ": norm: " << paths[i][j].get_velocity().norm_squared(metric, path_position) << '\n';
+
             // set path with an integrator
             paths[i][j].set_integrator(integrator);
 

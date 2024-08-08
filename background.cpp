@@ -143,7 +143,8 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
                 
         }
         // if collision is weird, use error color (green)
-        else if (r < 0 or theta > m_pi or theta < m_pi or phi < 0 or phi > 2*m_pi) {
+        else if (r < 0 or theta > m_pi or theta < 0 or phi < 0 or phi > 2*m_pi) {
+            std::cout << "background.cpp: weird collision at " << r << ' ' << theta << ' ' << phi << '\n';
             color = {0, 255, 0};
         }
         // if not weird but less than radius (for example, if at event horizon) then set to black

@@ -49,6 +49,6 @@ class Background {
         Vec3 get_color(Vec3& spherical_coordinates);
 
         // define pi
-        double m_pi { 3.14159 };
+        double m_pi { 3.14159265359 };
 
 };

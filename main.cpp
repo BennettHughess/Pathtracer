@@ -14,12 +14,12 @@ int main(int argc, char *argv[]) {
     // Camera position and direction are in cartesian (x,y,z) coordinates
     Vec3 camera_position {-5,0,0};
     Vec3 camera_direction {1,0,0};
-    Vec3 camera_up {0,0,1.0};
+    Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
 
-    double pi = 3.141459;
+    //double pi = 3.141459;
     // Rotate camera!
-    camera.rotate(0,0,0);
+    //camera.rotate(0,0,0);
 
     // Configure image size
     const int image_width {1920};
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
     // Initialize paths (this sets up the paths array)
-    Path::Integrator integrator {Path::Euler};
+    Path::Integrator integrator {Path::Verlet};
     camera.initialize_paths(metric, integrator);
 
     // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
@@ -71,13 +71,13 @@ int main(int argc, char *argv[]) {
         // if (!inside_background) { std::cout << "main.cpp: collision detected at position " << path.get_position().get_vec3() << '\n'; }
 
         // or close to event horizon
-        bool far_from_event_horizon { radius > 2.01*black_hole_mass} ;
+        bool far_from_event_horizon { radius > 2.1*black_hole_mass} ;
 
         return inside_background && far_from_event_horizon;
     };
 
     // Pathtrace until a collision happens
-    double dt {0.01};
+    double dt {0.001};
     camera.pathtrace(collision_checker, dt, metric);
 
     std::cout << "writing to file!" << '\n';
