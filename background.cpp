@@ -114,55 +114,54 @@ void Background::save_ppm(const std::string filename) {
 Vec3 Background::get_color(Vec3& spherical_coordinates) {
     // note: spherical coordinates should be in r, theta, phi
 
-    // std::cout << "get_color recieving coordinates " << spherical_coordinates << '\n';
+    // normalize coordinates
+    Vec3 normalized_spherical_coordinates { CoordinateSystem3::Normalize_SphericalVector(spherical_coordinates) };
+
+    // get r, theta, phi
+    double r { normalized_spherical_coordinates[0] };
+    double theta { normalized_spherical_coordinates[1] };
+    double phi { normalized_spherical_coordinates[2] };
+
+    // std::cout << "background.cpp: get_color recieving coordinates " << r << ' ' << theta << ' ' << phi << '\n';
 
     Vec3 color;
 
     if (image_been_loaded && type == image) {
 
         // Check if collision was at background
-        if (spherical_coordinates[0] >= radius) {
+        if (r >= radius
+            && theta >= 0
+            && theta < m_pi
+            && phi >= 0
+            && phi < 2*m_pi) {
 
-            // Check if coordinates are in bounds
-            if (spherical_coordinates[1] >= 0 && 
-            spherical_coordinates[1] <= m_pi && 
-            spherical_coordinates[2] >= 0 && 
-            spherical_coordinates[2] <= 2*m_pi) {
+            // We project the image onto the sphere using equirectangular projection
+            int x_pixel = int(phi*image_width/(2*m_pi));
+            int y_pixel = int(theta*image_height/m_pi);
 
-                // We project the image onto the sphere using equirectangular projection
-                int x_pixel = int(spherical_coordinates[2]*image_width/(2*m_pi));
-                int y_pixel = int(spherical_coordinates[1]*image_height/m_pi);
-
-                color = { image_array[y_pixel][x_pixel] };
+            color = { image_array[y_pixel][x_pixel] };
                 
-            }
-            // if not in bounds, set to error green
-            else {
-                color = {0, 255, 0};
-            }
         }
-        // if not (for example, if at event horizon) then set to black
+        // if collision is weird, use error color (green)
+        else if (r < 0 or theta > m_pi or theta < m_pi or phi < 0 or phi > 2*m_pi) {
+            color = {0, 255, 0};
+        }
+        // if not weird but less than radius (for example, if at event horizon) then set to black
         else {
             color = {0,0,0};
         }
         
-
-        return color;
-
     }
     else if (type == layered) {
         
-        if (fmod(spherical_coordinates[1],m_pi/8)> m_pi/16) {
+        if (fmod(theta, m_pi/8) > m_pi/16) {
             color = { 255, 0, 0 };
-            return color;
         }
-        else if (fmod(spherical_coordinates[2],m_pi/8)> m_pi/16) {
+        else if (fmod(phi, m_pi/8)> m_pi/16) {
             color = { 0, 255, 0 };
-            return color;
         }
         else {
             color = { 255, 255, 255 };
-            return color;
         }
 
     }
@@ -170,7 +169,7 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
 
         std::cerr << "Image was not loaded prior to raytracing or unknown type. \n";
         color = { 0, 0, 0 };
-        return color;
 
     }
+    return color;
 }

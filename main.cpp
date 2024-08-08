@@ -12,9 +12,9 @@
 int main(int argc, char *argv[]) {
 
     // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {-15,0,0};
+    Vec3 camera_position {-5,0,0};
     Vec3 camera_direction {1,0,0};
-    Vec3 camera_up {0,0,1};
+    Vec3 camera_up {0,0,1.0};
     Camera camera {camera_position, camera_direction, camera_up};
 
     double pi = 3.141459;
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Configure background
-    const double background_radius {20};
+    const double background_radius {10};
     Background background {background_radius, Background::image};
 
     // Get file
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     */
 
     // Initialize a metric,
-    double black_hole_mass {3};
+    double black_hole_mass {1};
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
     // Initialize paths (this sets up the paths array)
@@ -71,13 +71,13 @@ int main(int argc, char *argv[]) {
         // if (!inside_background) { std::cout << "main.cpp: collision detected at position " << path.get_position().get_vec3() << '\n'; }
 
         // or close to event horizon
-        bool far_from_event_horizon { radius > 2.1*black_hole_mass} ;
+        bool far_from_event_horizon { radius > 2.01*black_hole_mass} ;
 
         return inside_background && far_from_event_horizon;
     };
 
     // Pathtrace until a collision happens
-    double dt {0.1};
+    double dt {0.01};
     camera.pathtrace(collision_checker, dt, metric);
 
     std::cout << "writing to file!" << '\n';

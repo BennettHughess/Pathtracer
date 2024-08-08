@@ -90,7 +90,7 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
 
             }
 
-            //  dstd::cout << "Camera.cpp: ray " << i << ' ' << j << ": direction: " << adapted_unit_direction << '\n';
+            // std::cout << "Camera.cpp: ray " << i << ' ' << j << ": direction: " << adapted_unit_direction << '\n';
 
             // path with null velocity (speed of light)
             paths[i][j].set_velocity( convert_to_null(adapted_unit_direction, path_position, metric) );

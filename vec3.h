@@ -66,7 +66,7 @@ namespace CoordinateSystem3 {
     // converts a cartesian vector at a given spherical position to a spherical vector
     Vec3 CartesianVector_to_SphericalVector(Vec3& cartesian_vec, Vec3& spherical_pos);
 
-    // Takes a vector and maps it to itself
-    Vec3 IdentityMap(Vec3& v);
+    // convert spherical position into the correct domains
+    Vec3 Normalize_SphericalVector(Vec3& spherical);
     
 };

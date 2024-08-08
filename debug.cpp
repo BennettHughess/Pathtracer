@@ -9,6 +9,17 @@ int main() {
 
     double pi {3.14159};
 
+    Vec3 spherical_position { 1, pi/2, pi };
+
+    Vec3 cartesian_vector { 0, 0, -1 };
+
+    Vec3 new_vector { CoordinateSystem3::CartesianVector_to_SphericalVector(cartesian_vector, spherical_position) };
+
+    std::cout << cartesian_vector << " at " << spherical_position << " is " << new_vector << '\n';
+
+    /*
+    double pi {3.14159};
+
     double black_hole_mass {10};
 
     Metric metric { Metric::CartesianMinkowskiMetric, black_hole_mass };
@@ -41,6 +52,8 @@ int main() {
 
     std::cout << "final velocity: " << path.get_velocity() << " with norm squared " 
         << path.get_velocity().norm_squared(metric, path.get_position()) << '\n';
+
+    */
 
     return 0;
 }

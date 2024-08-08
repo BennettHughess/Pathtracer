@@ -88,7 +88,7 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
     COORDINATE SYSTEMS
 */
 
-double m_pi = 3.14159;
+double m_pi = 3.14159265359;
 
 Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
     
@@ -118,7 +118,7 @@ Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
         }
         */
         
-        phi = atan2(cartesian[1],cartesian[0]);
+        phi = atan2(cartesian[1],cartesian[0]) - 2*m_pi * floor(atan2(cartesian[1],cartesian[0])/(2*m_pi));
 
     }
     else {
@@ -156,8 +156,42 @@ Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cvec, Vec3& spo
 
 }
 
+// turn spherical vector into the correct domains
+Vec3 CoordinateSystem3::Normalize_SphericalVector(Vec3& spherical) {
 
-// Maps vector to itself
-Vec3 IdentityMap(Vec3& v) {
-    return v;
+    Vec3 cartesian { Spherical_to_Cartesian(spherical) };
+
+    return Cartesian_to_Spherical(cartesian);
+
+    // so we could do all this stuff, or we can just convert to cartesian and then back to spherical to renormalize it.
+    /*
+
+    double r {};
+    double theta {};
+    double phi {};
+
+    // if everything is good, wrap phi around
+    if (spherical[0] >= 0
+        && spherical[1] >= 0
+        && spherical[1] < m_pi) {
+
+        r = spherical[0];
+        theta = spherical[1];
+        phi = spherical[2] - 2*m_pi * floor(spherical[2]/(2*m_pi));
+
+    }
+    // if r<0 but everything else is fine, r' = -r, phi' = phi+pi and theta' = pi - theta
+    else if (spherical[0] < 0
+        && spherical[1] >= 0
+        && spherical[1] < m_pi) {
+
+            r = -spherical[0];
+            theta  = m_pi - spherical[1];
+            phi = (spherical[2] + m_pi) - 2*m_pi * floor((spherical[2] + m_pi)/(2*m_pi));
+
+    }
+    // if everything is fine but theta > pi, then wrap theta around and add 
+
+    */
+
 }
