@@ -99,6 +99,7 @@ Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
     if (r != 0) {
 
         theta = atan2(sqrt(cartesian[0]*cartesian[0]+cartesian[1]*cartesian[1]),cartesian[2]);
+        // theta = acos(cartesian[2]/r);
         
         /*
         if (cartesian[0] >= 0 && cartesian[1] >= 0) {
@@ -155,6 +156,23 @@ Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cvec, Vec3& spo
     return Vec3 {r, theta, phi};
 
 }
+
+// Turns a cartesian tangent into a spherical tangent
+Vec3 CoordinateSystem3::CartesianTangent_to_SphericalTangent(Vec3& cpos, Vec3& cvel) {
+
+    double r { cpos.norm() };
+
+    double Tr { cpos[0]*cvel[0]/r + cpos[1]*cvel[1]/r + cpos[2]*cvel[2]/r };
+
+    double Ttheta { (1/(r*r*std::sqrt(cpos[0]*cpos[0]+cpos[1]*cpos[1]))) 
+        * (cpos[0]*cpos[2]*cvel[0] + cpos[1]*cpos[2]*cvel[1] - (cpos[0]*cpos[0]+cpos[1]*cpos[1])*cvel[2] ) };
+
+    double Tphi { (1/(cpos[0]*cpos[0]+cpos[1]*cpos[1]))*(-cpos[1]*cvel[0]+cpos[0]*cvel[1]) };
+
+    return Vec3 { Tr, Ttheta, Tphi };
+
+}
+
 
 // turn spherical vector into the correct domains
 Vec3 CoordinateSystem3::Normalize_SphericalVector(Vec3& spherical) {

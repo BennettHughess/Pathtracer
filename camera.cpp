@@ -81,11 +81,11 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
                     break;
 
                 case Metric::SphericalMinkowskiMetric:
-                    adapted_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, initial_position);
+                    adapted_unit_direction = CoordinateSystem3::CartesianTangent_to_SphericalTangent(position, unit_direction);
                     break;
 
                 case Metric::SchwarzschildMetric:
-                    adapted_unit_direction = CoordinateSystem3::CartesianVector_to_SphericalVector(unit_direction, initial_position);
+                    adapted_unit_direction = CoordinateSystem3::CartesianTangent_to_SphericalTangent(position, unit_direction);
                     break;
 
             }

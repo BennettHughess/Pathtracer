@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
 
     // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {-5,0,0};
+    Vec3 camera_position {-20,0,0};
     Vec3 camera_direction {1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Configure background
-    const double background_radius {10};
+    const double background_radius {30};
     Background background {background_radius, Background::image};
 
     // Get file
