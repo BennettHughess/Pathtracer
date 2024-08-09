@@ -2,9 +2,7 @@
 
 Authors: Ben Hughes
 
-This project is a pathtracer, which will eventually be retooled and repackaged into a general relativistic pathtracer - ideally, one which can generate images of a Schwarzschild black hole.
-
-At the moment, the pathtracer is capable of pathtracing the interior of a sphere. The camera position, field of view, and other related quantities can be altered inside the `main.ccp` file.
+This project is capable of pathtracing null geodesics and recovering images around selected spacetimes. At the moment, the program is capable of tracing flat space (in Cartesian and spherical coordinates) and in Schwarzschild space. The camera position, field of view, and other related quantities can be altered inside the `main.ccp` file.
 
 To run the project, compile all of the .cpp files. Run the executable, and the output will be in a `main.ppm` file.
 
@@ -38,3 +36,7 @@ Current files:
     - These files contain the `Camera` class, which provides the code for generating a camera, viewport, and various related functions like rotations and pathtracing.
 - `background.cpp` and `background.h`
     - These files contain the `Background` class, which provides the tools for manipulating the background and storing an image to it.
+- `vec4.cpp` and `vec4.h`
+    - These files contain the `Vec4` class, which contains the basic information required to describe four-vectors in general relativity.
+- `metric.cpp` and `metric.h`
+    - These files contain the `Metric` class, which are primarily used to pass relevant information to the pathtracer, such as computing the Christoffel symbols.

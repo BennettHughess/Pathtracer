@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     Background background {background_radius, Background::image};
 
     // Get file
-    background.load_ppm("images/vista_panorama_hres.ppm");
+    background.load_ppm("images/milky_way.ppm");
 
     // Configure viewport
     const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
     };
 
     // Pathtrace until a collision happens
-    double dt {0.001};
+    double dt {0.01};
     camera.pathtrace(collision_checker, dt, metric);
 
     std::cout << "writing to file!" << '\n';

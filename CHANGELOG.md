@@ -1,16 +1,11 @@
-Version 0.2.1 (part 2)
+Version 0.3.0
 
-Updates:
-    - Vec3 coordinate conversion is now handled in vec3.cpp
-    - Added Vec4 class
-    - Added Metric class
-    - Retooled Camera and Path classes to handle paths which are 4-vectors
-    - Camera now propagates Paths according to a metric in correspondence with the geodesic equation
+Changes:
+    - Codebase has been completely retooled to trace photons in difference spacetimes
+        - Currently supported spacetimes include Minkowski, Minkowski in spherical coordinates, and Schwarzschild
+    - Introduced new classes: Vec4 and Metric. Both of these are used for pathtracing photons.
+    - Coordinate conversions are now handled in the Vec3.cpp file.
 
-Bug fixes:
-    - Corrected mistake in the dot() product function.
-
-Bugs introduced:
-    - oh my god oh my god NOTHING WORKS nothing works oh my god
-    - The image being produced is not close to right
-    - Pathtracing needs to be looked at more closely
+Notes:
+    - Speed of code has been dramatically reduced with all of the overhead added. Next steps are optimizing the
+    code and implementing multiprocressing.

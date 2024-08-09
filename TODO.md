@@ -1,5 +1,6 @@
 # TO DO
 
-- Generalize vec3 to vec4, including a time component
-- Use vec4 to generalize pathtracer to trace with nonzero Christoffel symbols
-- Implement the Schwarzschild metric
+- Optimize existing codebase
+- Add multiprocessing
+- Add functionality to read settings from a config file
+- Run the code on the GPU
