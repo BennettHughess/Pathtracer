@@ -45,7 +45,7 @@ std::vector<double> Metric::get_components(const Vec4& position) {
 }
 
 // Computes second derivative of position and returns as a 4-vector
-Vec4 Metric::get_acceleration(Vec4& pos, Vec4& vel) {
+Vec4 Metric::get_acceleration(const Vec4& pos, const Vec4& vel) {
 
     Vec4 acceleration;
 

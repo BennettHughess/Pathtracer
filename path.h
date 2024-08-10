@@ -9,7 +9,8 @@ class Path {
         
         enum Integrator {
             Euler,
-            Verlet
+            Verlet,
+            RK4
         };
 
     private:
@@ -20,11 +21,17 @@ class Path {
         // Paths need an integrator
         Integrator integrator;
 
-        // Different types of integrators
+        // Different types of integrators:
+
+        // Typical euler integration
         void euler_propagate(double dlam, Metric& metric);
 
         // Velocity verlet integration https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
         void verlet_propagate(double dlam, Metric& metric);
+
+        // RK4 algorithm https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge%E2%80%93Kutta_method
+        void RK4_propagate(double dlam, Metric& metric);
+        
 
     public:
 

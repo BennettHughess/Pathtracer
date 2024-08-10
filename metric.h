@@ -35,6 +35,6 @@ class Metric {
         std::vector<double> get_components(const Vec4& position);
 
         // Computes second derivative of position and returns as a 4-vector
-        Vec4 get_acceleration(Vec4& position, Vec4& velocity);
+        Vec4 get_acceleration(const Vec4& position, const Vec4& velocity);
 
 };

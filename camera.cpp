@@ -2,6 +2,7 @@
 #include <iostream>
 #include "camera.h"
 #include "metric.h"
+#include "omp.h"        // This is from OpenMP, need to pass -fopenmp as a compiler flag to use it
 
 // Set image variables in the Camera class
 void Camera::set_image_settings(int width, int height) {
@@ -151,7 +152,9 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
         // Progress bar
         std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " << std::flush;
 
-        for (int j {0}; j < image_width; ++j) {
+        // Run in parallel
+        #pragma omp parallel for num_threads(8)
+        for (int j = 0; j < image_width; ++j) {
 
             // Trace a ray till it collides
             paths[i][j].loop_propagate(condition, dlam, metric);

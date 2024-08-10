@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
 
     // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {-20,0,0};
+    Vec3 camera_position {-20.0,0,0};
     Vec3 camera_direction {1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
     // Initialize paths (this sets up the paths array)
-    Path::Integrator integrator {Path::Verlet};
+    Path::Integrator integrator {Path::RK4};
     camera.initialize_paths(metric, integrator);
 
     // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
