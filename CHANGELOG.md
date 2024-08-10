@@ -1,5 +1,6 @@
-Version 0.3.1
+Version 0.3.2
 
 Changes:
-    - Implemented RK4 algorithm for pathtracing
-    - Added support for multithreading with OpenMP
+    - Implemented a new verlet algorithm called `RefinedVerlet`, but its not good and is probably bugged.
+    - Implemented an RKF45 algorithm with an adaptive step size.
+        - Again, probably bugged and not great.

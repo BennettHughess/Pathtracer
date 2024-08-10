@@ -41,6 +41,8 @@ class Vec4 {
 
         // Note: norm depends on the metric, which depends on the position of the vector
         double norm_squared(Metric& metric, Vec4& position);
+
+        double max();
 };
 
 // More forward declarations
@@ -52,6 +54,9 @@ Vec4 operator-(const Vec4& v1, const Vec4& v2);
 // Multiply vector by scalar and save as new vector (made commutative)
 Vec4 operator*(const Vec4& v, double t);
 Vec4 operator*(double t, const Vec4& v);
+
+// multiply two vectors element wise
+Vec4 operator*(const Vec4& v1, const Vec4& v2);
 
 // stream output code
 std::ostream& operator<<(std::ostream& out, const Vec4& v);

@@ -45,6 +45,19 @@ double Vec4::norm_squared(Metric& metric, Vec4& position) {
     return norm_squared; 
 }
 
+// compute max element of a vector
+double Vec4::max() {
+
+    double max {e[0]};
+
+    for (int i {1}; i < 4; ++i) {
+        max = std::max(e[i], max);
+    }
+    
+    return max;
+
+}
+
 /*
     CONVENIENT BINARY VECTOR OPERATIONS
 */
@@ -65,6 +78,11 @@ Vec4 operator*(const Vec4& v, double t) {
 }
 Vec4 operator*(double t, const Vec4& v) {
     return v*t;
+}
+
+// Multiply vectors elementwise
+Vec4 operator*(const Vec4& v1, const Vec4& v2) {
+    return Vec4(v1[0]*v2[0], v1[1]*v2[1], v1[2]*v2[2], v1[3]*v2[3]);
 }
 
 // Output code

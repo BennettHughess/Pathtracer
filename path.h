@@ -10,7 +10,9 @@ class Path {
         enum Integrator {
             Euler,
             Verlet,
-            RK4
+            RK4,
+            RKF45,
+            RefinedVerlet
         };
 
     private:
@@ -30,9 +32,13 @@ class Path {
         void verlet_propagate(double dlam, Metric& metric);
 
         // RK4 algorithm https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge%E2%80%93Kutta_method
-        void RK4_propagate(double dlam, Metric& metric);
-        
+        void rk4_propagate(double dlam, Metric& metric);
 
+        double rkf45_propagate(double dlam, Metric& metric);
+
+        // this one is pretty buggy
+        void refined_verlet_propagate(double dlam, Metric& metric);
+        
     public:
 
         // Constructors
@@ -47,8 +53,9 @@ class Path {
         void set_velocity(const Vec4& vel) {velocity = vel;}
         void set_integrator(Integrator integ) {integrator = integ;}
 
-        // Propagate path. dtau is the step size of the affine parameter
-        void propagate(double dlam, Metric& metric);
+        // Propagate path. dlam is the step size of the affine parameter
+        // Returns a dlam (for use with adaptive step sizes)
+        double propagate(double dlam, Metric& metric);
 
         // Propagate path until condition (which is a lambda function) is met
         void loop_propagate(std::function<bool(Path&)> condition, double dlam, Metric& metric);
