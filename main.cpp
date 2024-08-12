@@ -12,7 +12,7 @@
 int main(int argc, char *argv[]) {
 
     // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {-20.0,0,0};
+    Vec3 camera_position {-20,0,0};
     Vec3 camera_direction {1,0,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
     // camera.rotate(0,pi/3,0);
 
     // Configure image size
-    const int image_width {3840};
-    const int image_height {2160};
+    const int image_width {1920};
+    const int image_height {1080};
     camera.set_image_settings(image_width, image_height);
 
     // Get filename and initialize filestream
@@ -55,9 +55,15 @@ int main(int argc, char *argv[]) {
     double black_hole_mass {1};
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
+    // Configure the integrator (with tolerances as necessary)
+    Path::Integrator integrator {Path::RKF45};
+    double dlam {0.01};
+    double max_dlam {0.1};
+    double min_dlam {0.0000001};
+    double tolerance {0.000001};
+
     // Initialize paths (this sets up the paths array)
-    Path::Integrator integrator {Path::Verlet};
-    camera.initialize_paths(metric, integrator);
+    camera.initialize_paths(metric, integrator, max_dlam, min_dlam, tolerance);
 
     // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
     std::function<bool(Path&)> collision_checker = [background_radius, black_hole_mass](Path& path) -> bool {
@@ -77,8 +83,7 @@ int main(int argc, char *argv[]) {
     };
 
     // Pathtrace until a collision happens
-    double dt {0.001};
-    camera.pathtrace(collision_checker, dt, metric);
+    camera.pathtrace(collision_checker, dlam, metric);
 
     std::cout << "writing to file!" << '\n';
 

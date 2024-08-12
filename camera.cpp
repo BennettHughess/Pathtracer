@@ -21,7 +21,7 @@ void Camera::set_viewport_settings(double fov, double dis) {
 }
 
 // Initialize paths
-void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
+void Camera::initialize_paths(Metric& metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance) {
 
     // Initialize vectors to begin iterating over viewport
     viewport_origin = directionhat*viewport_distance - (viewport_width/2)*viewport_uhat - (viewport_height/2)*viewport_vhat;
@@ -91,15 +91,14 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator) {
 
             }
 
-            // std::cout << "Camera.cpp: ray " << i << ' ' << j << ": direction: " << adapted_unit_direction << '\n';
-
             // path with null velocity (speed of light)
             paths[i][j].set_velocity( convert_to_null(adapted_unit_direction, path_position, metric) );
 
-            // std::cout << "Camera.cpp: ray " << i << ' ' << j << ": norm: " << paths[i][j].get_velocity().norm_squared(metric, path_position) << '\n';
-
             // set path with an integrator
             paths[i][j].set_integrator(integrator);
+            paths[i][j].set_max_dlam(max_dlam);
+            paths[i][j].set_min_dlam(min_dlam);
+            paths[i][j].set_tolerance(tolerance);
 
         }
     }
@@ -161,4 +160,6 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
 
         }
     }
+
+    std::clog << '\n';
 }

@@ -68,7 +68,7 @@ class Camera {
         void set_viewport_settings(double fov, double dis = 1);
 
         // Initialize viewport
-        void initialize_paths(Metric& metric, Path::Integrator integrator);
+        void initialize_paths(Metric& metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance);
 
         // Update the uhat and vhat vectors
         void update_viewport_vectors();

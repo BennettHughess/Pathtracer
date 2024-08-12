@@ -12,7 +12,7 @@ class Path {
             Verlet,
             RK4,
             RKF45,
-            RefinedVerlet
+            CashKarp
         };
 
     private:
@@ -20,8 +20,13 @@ class Path {
         Vec4 position;
         Vec4 velocity;
 
-        // Paths need an integrator
+        // Paths need an integrator to integrate the geodesic equations
         Integrator integrator;
+
+        // for adaptive integrators, we need a minimum step size, maximum step size, and tolerance
+        double tolerance {0.0001};
+        double min_dlam {0.000001};
+        double max_dlam {0.1};
 
         // Different types of integrators:
 
@@ -34,16 +39,19 @@ class Path {
         // RK4 algorithm https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge%E2%80%93Kutta_method
         void rk4_propagate(double dlam, Metric& metric);
 
+        // rkf45 has an auxiliary function to make the code nicer
         double rkf45_propagate(double dlam, Metric& metric);
+        std::vector<Vec4> rkf45_integrate(double dlam, Metric& metric);
 
-        // this one is pretty buggy
-        void refined_verlet_propagate(double dlam, Metric& metric);
+        //cashkarp
+        double cashkarp_propagate(double dlam, Metric& metric);
+        std::vector<Vec4> cashkarp_integrate(double dlam, Metric& metric);
         
     public:
 
         // Constructors
         Path() : position {0,0,0,0}, velocity {1,0,0,0}, integrator {Euler} {}
-        Path(const Vec4& pos, const Vec4& vel, Integrator integrator = Euler) : position {pos}, velocity {vel}, integrator {Euler} {}
+        Path(const Vec4& pos, const Vec4& vel, Integrator integrator = Euler) : position {pos}, velocity {vel}, integrator {integrator} {}
 
         // Access functions
         Vec4& get_position() {return position;}
@@ -52,6 +60,9 @@ class Path {
         void set_position(const Vec4& pos) {position = pos;}
         void set_velocity(const Vec4& vel) {velocity = vel;}
         void set_integrator(Integrator integ) {integrator = integ;}
+        void set_min_dlam(double min) {min_dlam = min;}
+        void set_max_dlam(double max) {max_dlam = max;}
+        void set_tolerance(double tol) {tolerance = tol;}
 
         // Propagate path. dlam is the step size of the affine parameter
         // Returns a dlam (for use with adaptive step sizes)
@@ -59,5 +70,8 @@ class Path {
 
         // Propagate path until condition (which is a lambda function) is met
         void loop_propagate(std::function<bool(Path&)> condition, double dlam, Metric& metric);
+
+        // Renormalize time component of photon velocity so that it is a null vector
+        void null_normalize(Metric& metric);
 
 };

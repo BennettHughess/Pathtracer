@@ -1,6 +1,5 @@
-Version 0.3.2
+Version 0.3.3
 
 Changes:
-    - Implemented a new verlet algorithm called `RefinedVerlet`, but its not good and is probably bugged.
-    - Implemented an RKF45 algorithm with an adaptive step size.
-        - Again, probably bugged and not great.
+    - Fixed a bug causing all integrators to be set to Euler when defined in the Path constructor.
+    - Implemented the CashKarp integrator, featuring adaptive step size.
