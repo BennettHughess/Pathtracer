@@ -12,14 +12,14 @@
 int main(int argc, char *argv[]) {
 
     // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {-20,0,0};
-    Vec3 camera_direction {1,0,0};
+    Vec3 camera_position {0,-20,0};
+    Vec3 camera_direction {0,1,0};
     Vec3 camera_up {0,0,1};
     Camera camera {camera_position, camera_direction, camera_up};
 
-    // double pi = 3.141459;
+    //double pi = 3.141459;
     // Rotate camera!
-    // camera.rotate(0,pi/3,0);
+    //camera.rotate(0,-0.3,0);
 
     // Configure image size
     const int image_width {1920};
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     Background background {background_radius, Background::image};
 
     // Get file
-    background.load_ppm("images/milky_way.ppm");
+    background.load_ppm("images/milky_way_hres.ppm");
 
     // Configure viewport
     const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
@@ -56,11 +56,11 @@ int main(int argc, char *argv[]) {
     Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
 
     // Configure the integrator (with tolerances as necessary)
-    Path::Integrator integrator {Path::RKF45};
+    Path::Integrator integrator {Path::CashKarp};       // integrator is adaptive and uses *fractional* error!
     double dlam {0.01};
     double max_dlam {0.1};
-    double min_dlam {0.0000001};
-    double tolerance {0.000001};
+    double min_dlam {1.0E-20};                        // basically 0 min_dlam
+    double tolerance {0.000000001};             // small tolerance, approx 10^-15
 
     // Initialize paths (this sets up the paths array)
     camera.initialize_paths(metric, integrator, max_dlam, min_dlam, tolerance);

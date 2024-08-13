@@ -174,19 +174,32 @@ double Path::cashkarp_propagate(double dlam, Metric& metric) {
     // compute error: difference in the order 5 and order 4 solutions
     Vec4 y1_error { ylist[1] - ylist[0] };
     Vec4 y2_error { ylist[3] - ylist[2] };
+    std::vector<double> err_list {y1_error[0], y1_error[1], y1_error[2], y1_error[3],
+        y2_error[0], y2_error[1], y2_error[2], y2_error[3]};
 
-    // find largest error
-    double max_error {std::abs(y1_error[0])};
-    for (int i {1}; i < 4; ++i) {
-        max_error = std::max(std::abs(y1_error[i]), max_error);
+    // find largest error and record which one it is
+    double max_error {std::abs(err_list[0])};
+    int index_error {0};
+    for (int i {1}; i < 8; ++i) {
+        if (std::abs(err_list[i]) >= max_error) {
+            max_error = std::abs(err_list[i]);
+            index_error = i;
+        }
     }
-    for (int i {0}; i < 4; ++i) {
-        max_error = std::max(std::abs(y2_error[i]), max_error);
+
+    // get the new y value with the most error in it
+    double y_max_error {0};
+    if (index_error < 4) {
+        y_max_error = ylist[1][index_error];
+    }
+    else {
+        y_max_error = ylist[3][index_error];
     }
 
     // compute new step size
+    // note: i think its better if the acceptable error is *fractional*, i.e. error = tolerance*y
     double best_dlam {
-        0.9*dlam*std::pow( tolerance/max_error , 1.0/5)
+        0.9*dlam*std::pow( tolerance*y_max_error/max_error , 1.0/5)
     };
 
     double new_dlam {};

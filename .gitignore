@@ -12,8 +12,9 @@
 # Mac-specific finder file
 *.DS_Store
 
-# image files
-# *.ppm # actually, i should keep these
+# some image files
+images/*.ppm
+*.tif
 
 # makefile
 makefile

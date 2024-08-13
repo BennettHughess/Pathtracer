@@ -24,7 +24,7 @@ class Path {
         Integrator integrator;
 
         // for adaptive integrators, we need a minimum step size, maximum step size, and tolerance
-        double tolerance {0.0001};
+        double tolerance {0.000001};
         double min_dlam {0.000001};
         double max_dlam {0.1};
 
