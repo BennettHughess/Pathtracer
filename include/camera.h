@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <omp.h>
 #include "vec3.h"
 #include "path.h"
 
@@ -37,6 +38,10 @@ class Camera {
         Vec3 viewport_delta_u {};
         Vec3 viewport_delta_v {};
 
+        // parallel processing stuff
+        bool multithreaded {false};
+        int threads {1};
+
         // Declare the array of paths
         std::vector<std::vector<Path>> paths {};
 
@@ -58,6 +63,8 @@ class Camera {
 
         // Access functions
         std::vector<std::vector<Path>>& get_paths() { return paths; }
+        void set_multithreaded(bool mthreaded) { multithreaded = mthreaded; }
+        void set_threadnum(int threadnum) { threads = threadnum; }
 
         // Initialize viewport stuff
 

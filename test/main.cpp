@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     /*
         Parse config file
     */
-    std::ifstream configstream("../cconfig.json");
+    std::ifstream configstream("../config.json");
     json config { json::parse(configstream) };
     config = config[0]; //for some reason it returns an array with one element, so...
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     // Configure image size
     const int image_width {config["camera"]["image"]["width"]};
-    const int image_height {config["camera"]["image"]["width"]};
+    const int image_height {config["camera"]["image"]["height"]};
     camera.set_image_settings(image_width, image_height);
 
     // Get filename and initialize filestream
@@ -127,6 +127,12 @@ int main(int argc, char *argv[]) {
     double min_dlam {config["integrator"]["min_dlam"]}; 
     double tolerance {config["integrator"]["tolerance"]};  
 
+    // set parallel computing stuff
+    bool multithreaded {config["parallel"]["multithreaded"]};
+    int threads {config["parallel"]["threads"]};
+    camera.set_multithreaded(multithreaded);
+    camera.set_threadnum(threads);
+
     /*
         PATH TRACING TIMEEEEEE
     */
@@ -184,6 +190,7 @@ int main(int argc, char *argv[]) {
     std::clog << "\rDone.                           \n";
 
     filestream.close();
+    configstream.close();
 
     return 0;
 }

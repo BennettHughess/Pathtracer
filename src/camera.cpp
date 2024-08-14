@@ -145,20 +145,41 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
 
     std::clog << "Beginning pathtrace! \n";
 
-    // Loop through image
-    for (int i {0}; i < image_height; ++i) {
+    if (multithreaded) {
 
-        // Progress bar
-        std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " 
-            << "Working on row " << i << " of " << image_height << "." << std::flush;
+        omp_set_num_threads(threads);
+        // Loop through image
+        for (int i {0}; i < image_height; ++i) {
 
-        // Run in parallel
-        #pragma omp parallel for num_threads(8)
-        for (int j = 0; j < image_width; ++j) {
+            // Progress bar
+            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " 
+                << "Working on row " << i << " of " << image_height << "." << std::flush;
+
+            // Run in parallel
+            #pragma omp parallel for
+            for (int j = 0; j < image_width; ++j) {
+
+                // Trace a ray till it collides
+                paths[i][j].loop_propagate(condition, dlam, metric);
+
+            }
+        }
+    }
+    else {
+        // Loop through image
+        for (int i {0}; i < image_height; ++i) {
+
+            // Progress bar
+            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " 
+                << "Working on row " << i << " of " << image_height << "." << std::flush;
+
+            // Run in parallel
+            for (int j = 0; j < image_width; ++j) {
 
             // Trace a ray till it collides
             paths[i][j].loop_propagate(condition, dlam, metric);
 
+            }
         }
     }
 

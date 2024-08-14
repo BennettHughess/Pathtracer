@@ -1,4 +1,5 @@
-Version 0.4.2
+Version 0.4.4
 
 Changes:
-    - Added support for a config file
+    - Added parallel processing stuff to the config file.
+    
