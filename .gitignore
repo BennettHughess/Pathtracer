@@ -4,6 +4,3 @@
 # some image files
 images/*.ppm
 *.tif
-
-# makefile
-makefile
