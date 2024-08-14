@@ -1,7 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "vec4.h"
+#include "../include/vec4.h"
 
 /*
     VECTOR OPERATIONS 	ʕっ•ᴥ•ʔっ

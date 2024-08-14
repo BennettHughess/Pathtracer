@@ -1,4 +1,4 @@
-#include "metric.h"
+#include "../include/metric.h"
 #include <cmath>
 
 // Get components of metric given a position

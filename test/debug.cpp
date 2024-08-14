@@ -15,7 +15,7 @@ int main() {
 
     // Cartesian 3-position and 3-velocity
     Vec3 cartesian_position3 {1,0,0};
-    Vec3 cartesian_velocity3 {-1,0.00001,1};
+    Vec3 cartesian_velocity3 {-1,0.000000000001,1};
 
 
     // Spherical position and 3-velocity
@@ -42,6 +42,16 @@ int main() {
     // Propagate paths
     double dlam {0.0001};
     double radius {0};
+    double max_dlam {0.1};
+    double min_dlam {1E-20};
+    double tolerance {1E-9};
+
+    spherical_path.set_max_dlam(max_dlam);
+    spherical_path.set_min_dlam(min_dlam);
+    spherical_path.set_tolerance(tolerance);
+    cartesian_path.set_max_dlam(max_dlam);
+    cartesian_path.set_min_dlam(min_dlam);
+    cartesian_path.set_tolerance(tolerance);
 
     double cumulative_spherical_normsquared {
         spherical_path.get_velocity().norm_squared(spherical_metric, spherical_path.get_position())

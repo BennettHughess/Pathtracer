@@ -1,6 +1,6 @@
 #include <cmath>
 #include <iostream>
-#include "vec3.h"
+#include "../include/vec3.h"
 
 /*
     VECTOR OPERATIONS 	ʕっ•ᴥ•ʔっ

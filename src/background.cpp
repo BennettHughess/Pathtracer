@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include "background.h"
+#include "../include/background.h"
 
 void Background::load_ppm(const std::string filename) {
 

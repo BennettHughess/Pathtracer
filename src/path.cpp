@@ -1,6 +1,6 @@
-#include "path.h"
+#include "../include/path.h"
 #include <functional>
-#include "metric.h"
+#include "../include/metric.h"
 #include <iostream>
 #include <cmath>
 
@@ -190,10 +190,10 @@ double Path::cashkarp_propagate(double dlam, Metric& metric) {
     // get the new y value with the most error in it
     double y_max_error {0};
     if (index_error < 4) {
-        y_max_error = ylist[1][index_error];
+        y_max_error = std::abs(ylist[1][index_error]);
     }
     else {
-        y_max_error = ylist[3][index_error];
+        y_max_error = std::abs(ylist[3][index_error-4]);
     }
 
     // compute new step size

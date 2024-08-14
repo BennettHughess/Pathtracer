@@ -3,11 +3,11 @@
 #include <fstream>
 #include <string>
 #include <functional>
-#include "vec3.h"
-#include "vec4.h"
-#include "camera.h"
-#include "path.h"
-#include "background.h"
+#include "../include/vec3.h"
+#include "../include/vec4.h"
+#include "../include/camera.h"
+#include "../include/path.h"
+#include "../include/background.h"
 
 int main(int argc, char *argv[]) {
 
@@ -22,14 +22,14 @@ int main(int argc, char *argv[]) {
     //camera.rotate(0,-0.3,0);
 
     // Configure image size
-    const int image_width {1920};
-    const int image_height {1080};
+    const int image_width {100};
+    const int image_height {100};
     camera.set_image_settings(image_width, image_height);
 
     // Get filename and initialize filestream
     std::ofstream filestream;
     if (argv[1] == NULL) {        // check if filename was inputted
-        filestream.open("main.ppm"); // if not, default output file to main.ppm
+        filestream.open("../main.ppm"); // if not, default output file to main.ppm
     } 
     else {
         std::string filename {argv[1]}; // if so, use the inputted filename
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     Background background {background_radius, Background::image};
 
     // Get file
-    background.load_ppm("images/milky_way_hres.ppm");
+    background.load_ppm("../images/milky_way_hres.ppm");
 
     // Configure viewport
     const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
     // Configure the integrator (with tolerances as necessary)
     Path::Integrator integrator {Path::CashKarp};       // integrator is adaptive and uses *fractional* error!
     double dlam {0.01};
-    double max_dlam {0.1};
+    double max_dlam {1};
     double min_dlam {1.0E-20};                        // basically 0 min_dlam
-    double tolerance {0.000000001};             // small tolerance, approx 10^-15
+    double tolerance {0.000000000001};             // small tolerance, approx 10^-15
 
     // Initialize paths (this sets up the paths array)
     camera.initialize_paths(metric, integrator, max_dlam, min_dlam, tolerance);
@@ -73,8 +73,6 @@ int main(int argc, char *argv[]) {
 
         // Collision happens when photon is outside background
         bool inside_background { radius < background_radius };
-
-        // if (!inside_background) { std::cout << "main.cpp: collision detected at position " << path.get_position().get_vec3() << '\n'; }
 
         // or close to event horizon
         bool far_from_event_horizon { radius > 2.01*black_hole_mass} ;
