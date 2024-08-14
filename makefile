@@ -2,8 +2,8 @@
 CXX := /opt/homebrew/Cellar/gcc/14.1.0_2/bin/g++-14
 
 # Compiler flags
-CXXFLAGS := -Wall -c -fopenmp -o
-LDFLAGS := -fopenmp -o
+CXXFLAGS := -Wall -c -fopenmp -std=c++17 -o
+LDFLAGS := -fopenmp -std=c++17 -o
 
 # Directories
 SRC := src/
@@ -13,6 +13,8 @@ TST := test/
 
 # basic commands to use
 all: bin/main bin/debug
+
+main: bin/main
 
 clean:
 	rm build/*

@@ -8,22 +8,36 @@
 #include "../include/camera.h"
 #include "../include/path.h"
 #include "../include/background.h"
+#include "../lib/json.hpp"
+
+// for convenience
+using json = nlohmann::json;
 
 int main(int argc, char *argv[]) {
 
-    // Camera position and direction are in cartesian (x,y,z) coordinates
-    Vec3 camera_position {0,-20,0};
-    Vec3 camera_direction {0,1,0};
-    Vec3 camera_up {0,0,1};
+    /*
+        Parse config file
+    */
+    std::ifstream configstream("../cconfig.json");
+    json config { json::parse(configstream) };
+    config = config[0]; //for some reason it returns an array with one element, so...
+
+    // Camera position and direction are in cartesian (x,y,z) coordinates.
+    // read camera position and direction from config
+    Vec3 camera_position {config["camera"]["position"].template get<std::vector<double>>()};
+    Vec3 camera_direction {config["camera"]["direction"].template get<std::vector<double>>()};
+    Vec3 camera_up {config["camera"]["up"].template get<std::vector<double>>()};
     Camera camera {camera_position, camera_direction, camera_up};
 
-    //double pi = 3.141459;
     // Rotate camera!
-    //camera.rotate(0,-0.3,0);
+    double rotate_pitch {config["camera"]["rotation"][0]};
+    double rotate_yaw {config["camera"]["rotation"][1]};
+    double rotate_roll {config["camera"]["rotation"][2]};
+    camera.rotate(rotate_pitch,rotate_yaw,rotate_roll);
 
     // Configure image size
-    const int image_width {100};
-    const int image_height {100};
+    const int image_width {config["camera"]["image"]["width"]};
+    const int image_height {config["camera"]["image"]["width"]};
     camera.set_image_settings(image_width, image_height);
 
     // Get filename and initialize filestream
@@ -37,30 +51,85 @@ int main(int argc, char *argv[]) {
     }
     
     // Configure background
-    const double background_radius {30};
-    Background background {background_radius, Background::image};
+    const double background_radius {config["background"]["radius"]};
+    std::string str_background_type { config["background"]["type"] };
+
+    Background::Type background_type {};
+    if (str_background_type == "Image") {
+        background_type = Background::Type::Image;
+    }
+    else if (str_background_type == "Layered") {
+        background_type = Background::Type::Layered;
+    }
+    else {
+        std::cerr << "Config file: unknown background type." <<'\n';
+        background_type = Background::Type::Layered;
+    }
+
+    Background background {background_radius, background_type};
 
     // Get file
-    background.load_ppm("../images/milky_way_hres.ppm");
+    background.load_ppm(config["background"]["image_path"]);
 
     // Configure viewport
-    const double fov {1.815}; //1.815 rads is valorant fov, 104 degrees
-    camera.set_viewport_settings(fov);
-
-    /*
-        RAY TRACING TIME BABY
-    */
+    const double viewport_fov {config["camera"]["viewport"]["fov"]}; //1.815 rads is valorant fov, 104 degrees
+    const double viewport_distance {config["camera"]["viewport"]["distance"]};
+    camera.set_viewport_settings(viewport_fov, viewport_distance);
 
     // Initialize a metric,
-    double black_hole_mass {1};
-    Metric metric { Metric::SchwarzschildMetric, black_hole_mass };
+    double black_hole_mass {config["metric"]["black_hole_mass"]};
+    std::string str_metric_type {config["metric"]["type"]};
+
+    Metric::MetricType metric_type {};
+    if (str_metric_type == "CartesianMinkowskiMetric") {
+        metric_type = Metric::MetricType::CartesianMinkowskiMetric;
+    }
+    else if (str_metric_type == "SphericalMinkowskiMetric") {
+        metric_type = Metric::MetricType::SphericalMinkowskiMetric;
+    }
+    else if (str_metric_type == "SchwarzschildMetric") {
+        metric_type = Metric::MetricType::SchwarzschildMetric;
+    }
+    else {
+        std::cerr << "Config file: unknown metric type." <<'\n';
+        metric_type = Metric::MetricType::CartesianMinkowskiMetric;
+    }
+
+    Metric metric { metric_type, black_hole_mass };
 
     // Configure the integrator (with tolerances as necessary)
-    Path::Integrator integrator {Path::CashKarp};       // integrator is adaptive and uses *fractional* error!
-    double dlam {0.01};
-    double max_dlam {1};
-    double min_dlam {1.0E-20};                        // basically 0 min_dlam
-    double tolerance {0.000000000001};             // small tolerance, approx 10^-15
+    std::string str_integrator_type {config["integrator"]["type"]};
+
+    Path::Integrator integrator_type {};
+    if (str_integrator_type == "Euler") {
+        integrator_type = Path::Integrator::Euler;
+    }
+    else if (str_integrator_type == "Verlet") {
+        integrator_type = Path::Integrator::Verlet;
+    }
+    else if (str_integrator_type == "RK4") {
+        integrator_type = Path::Integrator::RK4;
+    }
+    else if (str_integrator_type == "RKF45") {
+        integrator_type = Path::Integrator::RKF45;
+    }
+    else if (str_integrator_type == "CashKarp") {
+        integrator_type = Path::Integrator::CashKarp;
+    }
+    else {
+        std::cerr << "Config file: unknown integrator type." <<'\n';
+        integrator_type = Path::Integrator::Euler;
+    }
+    
+    Path::Integrator integrator {integrator_type};    
+    double dlam {config["integrator"]["dlam"]};
+    double max_dlam {config["integrator"]["max_dlam"]};
+    double min_dlam {config["integrator"]["min_dlam"]}; 
+    double tolerance {config["integrator"]["tolerance"]};  
+
+    /*
+        PATH TRACING TIMEEEEEE
+    */
 
     // Initialize paths (this sets up the paths array)
     camera.initialize_paths(metric, integrator, max_dlam, min_dlam, tolerance);

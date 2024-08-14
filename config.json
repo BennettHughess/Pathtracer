@@ -1,0 +1,39 @@
+{
+    "camera": 
+    {
+        "position": [0,-20,0],
+        "direction": [0,1,0],
+        "up": [0,0,1],
+        "rotation": [0,0,0],
+        "image":
+        {
+            "width": 100,
+            "height": 100
+        },
+        "viewport":
+        {
+            "fov": 1.815,
+            "distance": 1
+        }
+    },
+    "background":
+    {
+        "radius": 30,
+        "type": "Image",
+        "image_path": "../images/milky_way_hres.ppm"
+    },
+    "metric":
+    {
+        "black_hole_mass": 1,
+        "type": "SchwarzschildMetric"
+    },
+    "integrator":
+    {
+        "type": "CashKarp",
+        "dlam": 0.001,
+        "max_dlam": 1,
+        "min_dlam": 1.0E-20,
+        "tolerance": 1.0E-3
+    }
+
+}

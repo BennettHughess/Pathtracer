@@ -9,8 +9,8 @@ class Background {
 
         // We want the "type" enum to be public
         enum Type {
-            layered,    // This is the red/white layered sphere
-            image       // This is if the background is an image
+            Layered,    // This is the red/white layered sphere
+            Image       // This is if the background is an image
         };
 
     private:
@@ -33,7 +33,7 @@ class Background {
     public:
 
         // Constructors
-        Background() : radius {10}, type {layered} {}
+        Background() : radius {10}, type {Layered} {}
         Background(const double radius, Type type) : radius {radius}, type {type} {}
 
         // Access functions

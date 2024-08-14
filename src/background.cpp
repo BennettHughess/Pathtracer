@@ -4,7 +4,7 @@
 
 void Background::load_ppm(const std::string filename) {
 
-    if (type == image) {
+    if (type == Image) {
 
         // Open filestream
         std::ifstream filestream;
@@ -80,7 +80,7 @@ void Background::load_ppm(const std::string filename) {
 // Save image_array to a ppm file
 void Background::save_ppm(const std::string filename) {
 
-    if (image_been_loaded && type == image) {
+    if (image_been_loaded && type == Image) {
 
         // Open filestream
         std::ofstream filestream;
@@ -126,7 +126,7 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
 
     Vec3 color;
 
-    if (image_been_loaded && type == image) {
+    if (image_been_loaded && type == Image) {
 
         // Check if collision was at background
         if (r >= radius
@@ -153,7 +153,7 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
         }
         
     }
-    else if (type == layered) {
+    else if (type == Layered) {
         
         if (fmod(theta, m_pi/8) > m_pi/16) {
             color = { 255, 0, 0 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 
 // define class Vec3
 class Vec3 {
@@ -13,6 +14,7 @@ class Vec3 {
         Vec3() : e{0,0,0} {}
         Vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
         Vec3(double v[3]) : e { v[0], v[1], v[2] } {}
+        Vec3(std::vector<double> v) : e { v[0], v[1], v[2] } {}
         
         // Copy constructor
         Vec3(const Vec3& v) : e{v[0], v[1], v[2]} {}
