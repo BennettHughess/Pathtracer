@@ -4,6 +4,9 @@ Authors: Ben Hughes
 
 This project is capable of pathtracing null geodesics and recovering images around selected spacetimes. At the moment, the program is capable of tracing flat space (in Cartesian and spherical coordinates) and in the Schwarzschild metric. The camera position, field of view, and other related quantities can be altered inside the config.json file contained in the root directory of the project.
 
+![img1](example_images/schwarzschild_0.001dlam.png)
+![img2](example_images/schwarzschild_cashkarp.png)
+
 To run the project, compile all of the .cpp files in the /src folder along with main.cpp in the /test folder. Run the executable, and the output will be in a `main.ppm` file.
 
 ```console

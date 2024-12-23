@@ -1,24 +1,24 @@
 {
     "camera": 
     {
-        "position": [0,-20,0],
+        "position": [0,-8,0],
         "direction": [0,1,0],
         "up": [0,0,1],
         "rotation": [0,0,0],
         "image":
         {
-            "width": 1980,
-            "height": 1080
+            "width": 640,
+            "height": 480
         },
         "viewport":
         {
-            "fov": 1.815,
+            "fov": 2.1,
             "distance": 1
         }
     },
     "background":
     {
-        "radius": 30,
+        "radius": 10,
         "type": "Image",
         "image_path": "../images/milky_way_hres.ppm"
     },
@@ -30,10 +30,10 @@
     "integrator":
     {
         "type": "CashKarp",
-        "dlam": 0.001,
+        "dlam": 0.01,
         "max_dlam": 1,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-12
+        "tolerance": 1.0E-9
     },
     "parallel":
     {
