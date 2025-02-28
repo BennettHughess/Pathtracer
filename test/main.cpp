@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
     else if (str_metric_type == "SchwarzschildMetric") {
         metric_type = Metric::MetricType::SchwarzschildMetric;
     }
+    else if (str_metric_type == "CartesianIsotropicSchwarzschildMetric") {
+        metric_type = Metric::MetricType::CartesianIsotropicSchwarzschildMetric;
+    }
     else {
         std::cerr << "Config file: unknown metric type." <<'\n';
         metric_type = Metric::MetricType::CartesianMinkowskiMetric;
@@ -144,6 +147,7 @@ int main(int argc, char *argv[]) {
     // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
     std::function<bool(Path&)> collision_checker = [background_radius, black_hole_mass](Path& path) -> bool {
         
+        /*  // CODE FOR SCHWARZSCHILD CHECKER
         // get radius
         double radius = path.get_position()[1];
 
@@ -152,6 +156,21 @@ int main(int argc, char *argv[]) {
 
         // or close to event horizon
         bool far_from_event_horizon { radius > 2.01*black_hole_mass} ;
+
+        return inside_background && far_from_event_horizon;
+        */
+
+        // CODE FOR ISOTROPIC CARTESIAN SCHWARZSCHILD
+        Vec4 pos = path.get_position();
+        double rho = sqrt(pos[1]*pos[1] + pos[2]*pos[2] + pos[3]*pos[3]);
+        double rho_s = 2.*black_hole_mass/4;
+        double radius = rho*pow((1 + rho_s/rho),2);
+
+        // Collision happens when photon is outside background
+        bool inside_background { radius < background_radius };
+
+        // or close to event horizon
+        bool far_from_event_horizon { rho > 1.01*rho_s} ;
 
         return inside_background && far_from_event_horizon;
     };
@@ -174,12 +193,19 @@ int main(int argc, char *argv[]) {
 
             // Get collision position
             Vec3 collision_pos = camera.get_paths()[i][j].get_position().get_vec3();
-            //Vec3 spherical_collision_pos = CoordinateSystem3::Cartesian_to_Spherical(collision_pos);
+            Vec3 spherical_collision_pos = CoordinateSystem3::Cartesian_to_Spherical(collision_pos);
 
-            // std::clog << "collision for " << i << ' ' << j << " is at " << collision_pos << '\n';
+            double rho = spherical_collision_pos.norm();
+            double rho_s = 2.*black_hole_mass/4.;
+            double radius = rho*pow((1 + rho_s/rho),2);
+
+            Vec3 pos = {radius, spherical_collision_pos[1], spherical_collision_pos[2]};
 
             // Get the ray's color and save as pixel_color
-            Vec3 pixel_color = background.get_color(collision_pos); // NOTE what is passed depends on the metric of choice
+            Vec3 pixel_color = background.get_color(pos); // NOTE what is passed depends on the metric of choice
+
+            //std::clog << "collision for " << i << ' ' << j << " is at " << spherical_collision_pos 
+            //    << " with color " << pixel_color << '\n';
 
             // Write color to output stream
             filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';

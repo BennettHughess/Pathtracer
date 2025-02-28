@@ -56,6 +56,10 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator, doubl
             initial_position = CoordinateSystem3::Cartesian_to_Spherical(position);
             break;
 
+        case Metric::CartesianIsotropicSchwarzschildMetric:
+            initial_position = position;
+            break;
+
     }
 
     // Initialize the paths array with each ray pointing out of the camera and through the viewport
@@ -87,6 +91,10 @@ void Camera::initialize_paths(Metric& metric, Path::Integrator integrator, doubl
 
                 case Metric::SchwarzschildMetric:
                     adapted_unit_direction = CoordinateSystem3::CartesianTangent_to_SphericalTangent(position, unit_direction);
+                    break;
+
+                case Metric::CartesianIsotropicSchwarzschildMetric: 
+                    adapted_unit_direction = unit_direction;
                     break;
 
             }

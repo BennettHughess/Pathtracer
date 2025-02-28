@@ -25,7 +25,7 @@
     "metric":
     {
         "black_hole_mass": 1,
-        "type": "SchwarzschildMetric"
+        "type": "CartesianIsotropicSchwarzschildMetric"
     },
     "integrator":
     {
@@ -33,7 +33,7 @@
         "dlam": 0.01,
         "max_dlam": 1,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-9
+        "tolerance": 1.0E-6
     },
     "parallel":
     {

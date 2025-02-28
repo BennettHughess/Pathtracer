@@ -18,6 +18,8 @@ all: bin/main bin/debug
 
 main: bin/main
 
+debug: bin/debug
+
 clean:
 	rm build/*
 
@@ -25,9 +27,15 @@ clean:
 bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)main.o
 	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(LDFLAGS) bin/main
 
+bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)debug.o
+	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(LDFLAGS) bin/debug
+
 # Compile test objects
 build/main.o: $(TST)main.cpp
 	$(CXX) $(TST)main.cpp $(CXXFLAGS) $(BLD)main.o
+
+build/debug.o: $(TST)debug.cpp
+	$(CXX) $(TST)debug.cpp $(CXXFLAGS) $(BLD)debug.o
 
 # Compile source objects
 build/background.o: $(SRC)background.cpp $(INC)background.h

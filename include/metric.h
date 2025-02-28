@@ -10,9 +10,11 @@ class Metric {
 
         // This is passed to the constructor during initialization
         enum MetricType{
-            SphericalMinkowskiMetric,               // assumes (t, r, theta, phi) coordinates
-            CartesianMinkowskiMetric,               // assumes (t, x, y, z) coordinates
-            SchwarzschildMetric                     // assumes (t, r, theta, phi) coordinates
+            SphericalMinkowskiMetric,                   // assumes (t, r, theta, phi) coordinates
+            CartesianMinkowskiMetric,                   // assumes (t, x, y, z) coordinates
+            SchwarzschildMetric,                        // assumes (t, r, theta, phi) coordinates
+            CartesianIsotropicSchwarzschildMetric       // assumes (t, x, y, z) coordinates 
+                                                            // (but with an implicit rho cordinate)
         };
     
     private:
