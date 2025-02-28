@@ -33,6 +33,14 @@ Vec3& Vec3::operator*=(double t) {
     return *this;
 }
 
+// Set two vectors equal
+Vec3& Vec3::operator=(const Vec3& v) {
+    e[0] = v.e[0];
+    e[1] = v.e[1];
+    e[2] = v.e[2];
+    return *this;
+}
+
 // Compute norm
 double Vec3::norm() const {
     return std::sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);

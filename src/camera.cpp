@@ -160,7 +160,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
         for (int i {0}; i < image_height; ++i) {
 
             // Progress bar
-            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " 
+            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
                 << "Working on row " << i << " of " << image_height << "." << std::flush;
 
             // Run in parallel
@@ -178,7 +178,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
         for (int i {0}; i < image_height; ++i) {
 
             // Progress bar
-            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "\% completed. " 
+            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
                 << "Working on row " << i << " of " << image_height << "." << std::flush;
 
             // Run in parallel

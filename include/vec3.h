@@ -28,6 +28,8 @@ class Vec3 {
 
         Vec3& operator*=(double t);
 
+        Vec3& operator=(const Vec3& other);
+
         double norm() const;
 };
 

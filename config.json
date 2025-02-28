@@ -1,14 +1,14 @@
 {
     "camera": 
     {
-        "position": [0,-8,0],
+        "position": [-3,-8,1],
         "direction": [0,1,0],
         "up": [0,0,1],
         "rotation": [0,0,0],
         "image":
         {
-            "width": 640,
-            "height": 480
+            "width": 1920,
+            "height": 1080
         },
         "viewport":
         {
@@ -33,7 +33,7 @@
         "dlam": 0.01,
         "max_dlam": 1,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-6
+        "tolerance": 1.0E-9
     },
     "parallel":
     {

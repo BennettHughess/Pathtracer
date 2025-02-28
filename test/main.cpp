@@ -18,7 +18,6 @@ int main(int argc, char *argv[]) {
     /*
         Parse config file
     */
-    //std::cout << system("pwd") << std::endl;
     std::ifstream configstream("/Users/ben/Code/Pathtracer/config.json");
     json config { json::parse(configstream) };
     //config = config[0]; //for some reason it returns an array with one element, so...
@@ -43,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     // Get filename and initialize filestream
     std::ofstream filestream;
-    if (argv[1] == NULL) {        // check if filename was inputted
+    if (argc == 1) {        // check if filename was inputted
         filestream.open("/Users/ben/Code/Pathtracer/main.ppm"); // if not, default output file to main.ppm
     } 
     else {

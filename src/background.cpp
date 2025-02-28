@@ -57,7 +57,7 @@ void Background::load_ppm(const std::string filename) {
                 b = int(std::stoi(color)*255/max_color_value);
 
                 // Save r, g ,b to a vector
-                Vec3 rgb {double(r), double(g), double(b)};
+                rgb = {double(r), double(g), double(b)};
 
                 // Save vector into the image array
                 image_array[i][j] = rgb;
