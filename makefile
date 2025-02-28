@@ -1,8 +1,10 @@
 # Compiler
-CXX := /opt/homebrew/Cellar/gcc/14.1.0_2/bin/g++-14
+CXX := clang++
 
 # Compiler flags
-CXXFLAGS := -Wall -c -fopenmp -std=c++17 -o
+#CXXFLAGS := -Wall -c -I /opt/homebrew/opt/llvm/include -fopenmp -std=c++17 -o
+#LDFLAGS := -L /opt/homebrew/opt/llvm/lib -fopenmp -std=c++17 -o
+CXXFLAGS := -Wall -c -O2 -fopenmp -std=c++17 -o
 LDFLAGS := -fopenmp -std=c++17 -o
 
 # Directories

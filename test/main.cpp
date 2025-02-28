@@ -18,10 +18,11 @@ int main(int argc, char *argv[]) {
     /*
         Parse config file
     */
-    std::ifstream configstream("../config.json");
+    //std::cout << system("pwd") << std::endl;
+    std::ifstream configstream("/Users/ben/Code/Pathtracer/config.json");
     json config { json::parse(configstream) };
-    config = config[0]; //for some reason it returns an array with one element, so...
-
+    //config = config[0]; //for some reason it returns an array with one element, so...
+    
     // Camera position and direction are in cartesian (x,y,z) coordinates.
     // read camera position and direction from config
     Vec3 camera_position {config["camera"]["position"].template get<std::vector<double>>()};
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
     // Get filename and initialize filestream
     std::ofstream filestream;
     if (argv[1] == NULL) {        // check if filename was inputted
-        filestream.open("../main.ppm"); // if not, default output file to main.ppm
+        filestream.open("/Users/ben/Code/Pathtracer/main.ppm"); // if not, default output file to main.ppm
     } 
     else {
         std::string filename {argv[1]}; // if so, use the inputted filename

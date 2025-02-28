@@ -20,7 +20,7 @@
     {
         "radius": 10,
         "type": "Image",
-        "image_path": "../images/milky_way_hres.ppm"
+        "image_path": "/Users/ben/Code/Pathtracer/images/milky_way_hres.ppm"
     },
     "metric":
     {
