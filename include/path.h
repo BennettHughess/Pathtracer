@@ -51,7 +51,7 @@ class Path {
 
         // Constructors
         Path() : position {0,0,0,0}, velocity {1,0,0,0}, integrator {Euler} {}
-        Path(const Vec4& pos, const Vec4& vel, Integrator integrator = Euler) : position {pos}, velocity {vel}, integrator {integrator} {}
+        Path(const Vec4& pos, const Vec4& vel, Integrator integ = Euler) : position {pos}, velocity {vel}, integrator {integ} {}
 
         // Access functions
         Vec4& get_position() {return position;}

@@ -1,5 +1,6 @@
 # Compiler
-CXX := clang++
+CXX := g++
+#CXX := clang++
 
 # Compiler flags
 #CXXFLAGS := -Wall -c -I /opt/homebrew/opt/llvm/include -fopenmp -std=c++17 -o

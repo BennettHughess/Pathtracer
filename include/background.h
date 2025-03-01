@@ -34,7 +34,7 @@ class Background {
 
         // Constructors
         Background() : radius {10}, type {Layered} {}
-        Background(const double radius, Type type) : radius {radius}, type {type} {}
+        Background(const double r, Type t) : radius {r}, type {t} {}
 
         // Access functions
         std::vector<std::vector<Vec3>>& get_image_array() { return image_array; }

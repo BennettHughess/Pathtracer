@@ -58,7 +58,7 @@ int main() {
     double rho_s = 2./4.;
     radius = rho*pow((1 + rho_s/rho),2);
 
-    Vec3 pos = {radius, cartesian_final_pos_in_sphere[2], cartesian_final_pos_in_sphere[3]};
+    //Vec3 pos = {radius, cartesian_final_pos_in_sphere[2], cartesian_final_pos_in_sphere[3]};
 
     Background background {10, Background::Type::Image};
     background.load_ppm("/Users/ben/Code/Pathtracer/images/milky_way_hres.ppm");
