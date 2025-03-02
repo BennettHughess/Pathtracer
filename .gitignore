@@ -4,3 +4,5 @@
 # some image files
 images/*.ppm
 *.tif
+build/
+bin/

@@ -4,4 +4,5 @@ Changes:
     - Added stricter compiler flags
     - Cleaned up some code
     - Added some error handling
+    - Changed .gitignore
     
