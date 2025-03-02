@@ -21,7 +21,7 @@ main: bin/main
 debug: bin/debug
 
 clean:
-	rm build/*
+	rm build/*; rm bin/*
 
 # Compile tests
 bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)main.o
