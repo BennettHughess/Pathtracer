@@ -20,7 +20,7 @@
     {
         "radius": 10,
         "type": "Image",
-        "image_path": "C:/Users/Ben/Code/Pathtracer/images/milky_way.ppm"
+        "image_path": "/home/ben-ubuntu/Pathtracer/images/milky_way.ppm"
     },
     "metric":
     {
@@ -37,7 +37,7 @@
     },
     "parallel":
     {
-        "parallel_type": 0,
+        "parallel_type": 1,
         "threads": 20
     }
 

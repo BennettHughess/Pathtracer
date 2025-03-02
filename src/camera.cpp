@@ -152,16 +152,19 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
 // Determine which pathtracing routine to call
 void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
 
-    std::clog << "Beginning pathtrace! \n";
+    std::clog << "Beginning pathtrace with parallel processing type: ";
 
     switch (parallel_type) {
-        case 0: 
+        case 0:
+            std::clog << "single threaded" << std::endl;
             default_pathtrace(condition, dlam, metric);
             break;
         case 1:
+        std::clog << "multithreaded (" << threads << " threads)" << std::endl;
             multi_pathtrace(condition, dlam, metric);
             break;
         case 2:
+            std::clog << "gpu" << std::endl;
             //cuda_pathtrace(condition, dlam, metric, image_height, image_width, paths);
             test_func();
             break;

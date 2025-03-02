@@ -38,7 +38,8 @@ int main(int argc, char *argv[]) {
         }
     }
     catch(int Err) {
-        std::cerr << "ERROR " << Err << ": Config stream failed to open. Check path?" << std::endl;
+        std::cerr << "ERROR " << Err << ": Config stream failed to open. Check path?"<< std::endl;
+        std::cerr << "  Attempted to open file: " << config_path.string() << std::endl;
         return 1;
     }
 
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]) {
             1: multi thread, processed on cpu 
             2: processed on gpu
     */
-    bool parallel_type {config["parallel"]["parallel_type"]};
+    int parallel_type {config["parallel"]["parallel_type"]};
     int threads {config["parallel"]["threads"]};
     camera.set_parallel_type(parallel_type);
     camera.set_threadnum(threads);
@@ -228,7 +229,7 @@ int main(int argc, char *argv[]) {
     // Pathtrace until a collision happens
     camera.pathtrace(collision_checker, dlam, metric);
 
-    std::cout << "writing to file!" << '\n';
+    std::cout << "Writing to file!" << '\n';
 
     /*
         WRITE TO FILE

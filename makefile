@@ -1,15 +1,13 @@
 # Compiler
 #CXX := g++
-CXX := nvcc
-#CXX := clang++
+#CXX := nvcc
+CXX := clang++
 CUDACXX := nvcc
 
 # Compiler flags
-#CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -o
-#LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64" -lcudart -o
-CXXFLAGS := -c -arch=sm_86 -O3 -std=c++17 -o
-LDFLAGS := -std=c++17 -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64" -lcudart -o
-CUDACXXFLAGS := -c -arch=sm_86 -O3 -std=c++17 -o
+CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -o
+LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -L/usr/local/cuda/lib64 -std=c++17 -lcudart -o
+CUDACXXFLAGS := -c -arch=sm_86 -ccbin=$(CXX) -O3 -std=c++17 -o
 
 # Directories
 SRC := src/
