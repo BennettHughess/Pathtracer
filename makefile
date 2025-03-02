@@ -1,11 +1,15 @@
 # Compiler
-CXX := g++
+#CXX := g++
+CXX := nvcc
 #CXX := clang++
 CUDACXX := nvcc
 
 # Compiler flags
-CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O2 -fopenmp -std=c++17 -o
-LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -o
+#CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -o
+#LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64" -lcudart -o
+CXXFLAGS := -c -arch=sm_86 -O3 -std=c++17 -o
+LDFLAGS := -std=c++17 -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.8\lib\x64" -lcudart -o
+CUDACXXFLAGS := -c -arch=sm_86 -O3 -std=c++17 -o
 
 # Directories
 SRC := src/
@@ -24,11 +28,11 @@ clean:
 	rm build/*; rm bin/*
 
 # Compile tests
-bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)main.o
-	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(LDFLAGS) bin/main
+bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)main.o $(BLD)cuda_routines.o
+	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_routines.o $(LDFLAGS) bin/main
 
-bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)debug.o
-	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(LDFLAGS) bin/debug
+bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)debug.o $(BLD)cuda_routines.o
+	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_routines.o $(LDFLAGS) bin/debug
 
 # Compile test objects
 build/main.o: $(TST)main.cpp
@@ -55,3 +59,7 @@ build/vec3.o: $(SRC)vec3.cpp $(INC)vec3.h
 
 build/vec4.o: $(SRC)vec4.cpp $(INC)vec4.h
 	$(CXX) $(SRC)vec4.cpp $(CXXFLAGS) $(BLD)vec4.o
+
+# Compile cuda objects
+build/cuda_routines.o: $(SRC)cuda_routines.cu $(INC)cuda_routines.cuh
+	$(CUDACXX) $(SRC)cuda_routines.cu $(CUDACXXFLAGS) $(BLD)cuda_routines.o

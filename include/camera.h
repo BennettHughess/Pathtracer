@@ -39,7 +39,13 @@ class Camera {
         Vec3 viewport_delta_v {};
 
         // parallel processing stuff
-        bool multithreaded {false};
+        /*
+            Parallel_type takes on values 0, 1, 2 
+                0: single thread, processed on cpu 
+                1: multi thread, processed on cpu 
+                2: processed on gpu
+        */
+        int parallel_type {0};
         int threads {1};
 
         // Declare the array of paths
@@ -53,17 +59,18 @@ class Camera {
             : position {pos}, directionhat {unit_vector(dir)}, uphat {unit_vector(up)} { // note: autonormalizes dir and up
                 try {
                     if (dot(directionhat, uphat) != 0) { //throw exception is uphat is not orthogonal to directionhat
-                        throw -1;
+                        throw 20;
                     }
                 }
-                catch (int) {
-                    std::cerr << "Camera 'up' direction is not orthogonal to the camera's viewing direction.\n";
+                catch (int Err) {
+                    std::cerr << "ERROR " << Err << ": Camera 'up' direction is not orthogonal to the camera's viewing direction.\n";
+                    throw Err;
                 }
         } 
 
         // Access functions
         std::vector<std::vector<Path>>& get_paths() { return paths; }
-        void set_multithreaded(bool mthreaded) { multithreaded = mthreaded; }
+        void set_parallel_type(int type) { parallel_type = type; }
         void set_threadnum(int threadnum) { threads = threadnum; }
 
         // Initialize viewport stuff
@@ -85,6 +92,11 @@ class Camera {
 
         // Pathtrace until condition is no longer met (condition is a lambda function)
         void pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
+
+        // Different pathtracing routines (multiprocessing, single processing etc.)
+        // The cuda routine is stored in cuda_routines.h
+        void default_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
+        void multi_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
 
 };
 

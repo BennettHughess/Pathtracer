@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../include/camera.h"
 #include "../include/metric.h"
+#include "../include/cuda_routines.cuh"
 #include "omp.h"        // This is from OpenMP, need to pass -fopenmp as a compiler flag to use it
 
 // Set image variables in the Camera class
@@ -148,48 +149,66 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
     return rotated_vector;
 }
 
-// Iterate through the paths array and pathtrace each one until condition is no longer met
+// Determine which pathtracing routine to call
 void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
 
     std::clog << "Beginning pathtrace! \n";
 
-    if (multithreaded) {
-
-        omp_set_num_threads(threads);
-        // Loop through image
-        for (int i {0}; i < image_height; ++i) {
-
-            // Progress bar
-            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
-                << "Working on row " << i << " of " << image_height << "." << std::flush;
-
-            // Run in parallel
-            #pragma omp parallel for
-            for (int j = 0; j < image_width; ++j) {
-
-                // Trace a ray till it collides
-                paths[i][j].loop_propagate(condition, dlam, metric);
-
-            }
-        }
+    switch (parallel_type) {
+        case 0: 
+            default_pathtrace(condition, dlam, metric);
+            break;
+        case 1:
+            multi_pathtrace(condition, dlam, metric);
+            break;
+        case 2:
+            //cuda_pathtrace(condition, dlam, metric, image_height, image_width, paths);
+            test_func();
+            break;
+        default:
+            break;
     }
-    else {
-        // Loop through image
-        for (int i {0}; i < image_height; ++i) {
 
-            // Progress bar
-            std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
-                << "Working on row " << i << " of " << image_height << "." << std::flush;
+    std::clog << '\n';
+}
 
-            // Run in parallel
-            for (int j = 0; j < image_width; ++j) {
+void Camera::default_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
+
+    // Loop through image
+    for (int i {0}; i < image_height; ++i) {
+
+        // Progress bar
+        std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
+            << "Working on row " << i << " of " << image_height << "." << std::flush;
+
+        for (int j = 0; j < image_width; ++j) {
 
             // Trace a ray till it collides
             paths[i][j].loop_propagate(condition, dlam, metric);
 
-            }
         }
     }
 
-    std::clog << '\n';
+}
+
+void Camera::multi_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
+
+    omp_set_num_threads(threads);
+    // Loop through image
+    for (int i {0}; i < image_height; ++i) {
+
+        // Progress bar
+        std::clog << "\rPathtrace is " << int(100*(double(i)/image_height)) << "% completed. " 
+            << "Working on row " << i << " of " << image_height << "." << std::flush;
+
+        // Run in parallel
+        #pragma omp parallel for
+        for (int j = 0; j < image_width; ++j) {
+
+            // Trace a ray till it collides
+            paths[i][j].loop_propagate(condition, dlam, metric);
+
+        }
+    }
+
 }

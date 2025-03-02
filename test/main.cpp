@@ -176,9 +176,15 @@ int main(int argc, char *argv[]) {
     double tolerance {config["integrator"]["tolerance"]};  
 
     // set parallel computing stuff
-    bool multithreaded {config["parallel"]["multithreaded"]};
+    /*
+        Parallel_type takes on values 0, 1, 2 
+            0: single thread, processed on cpu 
+            1: multi thread, processed on cpu 
+            2: processed on gpu
+    */
+    bool parallel_type {config["parallel"]["parallel_type"]};
     int threads {config["parallel"]["threads"]};
-    camera.set_multithreaded(multithreaded);
+    camera.set_parallel_type(parallel_type);
     camera.set_threadnum(threads);
 
     /*

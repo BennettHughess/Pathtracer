@@ -37,7 +37,7 @@
     },
     "parallel":
     {
-        "multithreaded": true,
+        "parallel_type": 0,
         "threads": 20
     }
 
