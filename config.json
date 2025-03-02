@@ -20,7 +20,7 @@
     {
         "radius": 10,
         "type": "Image",
-        "image_path": "/Users/ben/Code/Pathtracer/images/milky_way_hres.ppm"
+        "image_path": "C:/Users/Ben/Code/Pathtracer/images/milky_way.ppm"
     },
     "metric":
     {
@@ -33,12 +33,12 @@
         "dlam": 0.01,
         "max_dlam": 1,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-9
+        "tolerance": 1.0E-6
     },
     "parallel":
     {
         "multithreaded": true,
-        "threads": 8
+        "threads": 20
     }
 
 }

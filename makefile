@@ -1,10 +1,9 @@
 # Compiler
 CXX := g++
 #CXX := clang++
+CUDACXX := nvcc
 
 # Compiler flags
-#CXXFLAGS := -Wall -c -I /opt/homebrew/opt/llvm/include -fopenmp -std=c++17 -o
-#LDFLAGS := -L /opt/homebrew/opt/llvm/lib -fopenmp -std=c++17 -o
 CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O2 -fopenmp -std=c++17 -o
 LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -o
 

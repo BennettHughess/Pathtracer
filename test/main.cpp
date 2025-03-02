@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <functional>
+#include <filesystem>
 #include "../include/vec3.h"
 #include "../include/vec4.h"
 #include "../include/camera.h"
@@ -15,12 +16,40 @@ using json = nlohmann::json;
 
 int main(int argc, char *argv[]) {
 
+    // get directory location
+    std::filesystem::path executable_path = std::filesystem::current_path();
+    std::filesystem::path dir_path = executable_path/"..";
+
+    // get config and image path
+    std::filesystem::path config_path = dir_path/"config.json";
+    std::filesystem::path image_path = dir_path/"main.ppm";
+
     /*
         Parse config file
     */
-    std::ifstream configstream("/Users/ben/Code/Pathtracer/config.json");
-    json config { json::parse(configstream) };
-    //config = config[0]; //for some reason it returns an array with one element, so...
+
+    // attempt to open config file
+    std::ifstream configstream;
+    json config;
+    try {
+        configstream.open(config_path.string());
+        if (!configstream.is_open()) {
+            throw 10;
+        }
+    }
+    catch(int Err) {
+        std::cerr << "ERROR " << Err << ": Config stream failed to open. Check path?" << std::endl;
+        return 1;
+    }
+
+    // attempt to parse config file
+    try {
+        config = json::parse(configstream);
+    }
+    catch(int Err) {
+        std::cerr << "ERROR " << Err << ": Config failed to be parsed as json. Check path?" << std::endl;
+        return 1;
+    }
     
     // Camera position and direction are in cartesian (x,y,z) coordinates.
     // read camera position and direction from config
@@ -42,12 +71,21 @@ int main(int argc, char *argv[]) {
 
     // Get filename and initialize filestream
     std::ofstream filestream;
-    if (argc == 1) {        // check if filename was inputted
-        filestream.open("/Users/ben/Code/Pathtracer/main.ppm"); // if not, default output file to main.ppm
-    } 
-    else {
-        std::string filename {argv[1]}; // if so, use the inputted filename
-        filestream.open(filename);
+    try {
+        if (argc == 1) {        // check if filename was inputted
+            filestream.open(image_path.string()); // if not, default output file to main.ppm
+        } 
+        else {
+            std::string filename {argv[1]}; // if so, use the inputted filename
+            filestream.open(filename);
+        }
+        if (!filestream.is_open()) {
+            throw 11;
+        }
+    }
+    catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Image file failed to be opened. Check path?" << std::endl;
+        return 1;
     }
     
     // Configure background
@@ -68,9 +106,16 @@ int main(int argc, char *argv[]) {
 
     Background background {background_radius, background_type};
 
-    // Get file
-    background.load_ppm(config["background"]["image_path"]);
-
+    // Load background image
+    try {
+        background.load_ppm(config["background"]["image_path"]);
+    }
+    catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Failure in background.load_ppm. " 
+            << "Attempted to open " << config["background"]["image_path"] << std::endl;
+        return 1;
+    }
+    
     // Configure viewport
     const double viewport_fov {config["camera"]["viewport"]["fov"]}; //1.815 rads is valorant fov, 104 degrees
     const double viewport_distance {config["camera"]["viewport"]["distance"]};

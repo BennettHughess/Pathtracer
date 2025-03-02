@@ -8,11 +8,15 @@ void Background::load_ppm(const std::string filename) {
 
         // Open filestream
         std::ifstream filestream;
-        filestream.open(filename);
-
-        // Doesn't throw an exception, just points it out to you.
-        if (!filestream) {
-            std::cerr << "Could not open file. \n";
+        try {
+            filestream.open(filename);
+            if (!filestream.is_open()) {
+                throw 12;
+            }
+        }   
+        catch (int Err) {
+            std::cerr << "ERROR " << Err << ": Background image file failed to be opened. Check path?" << std::endl;
+            throw Err;
         }
 
         // Skip first line (should be "P3")
