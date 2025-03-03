@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../include/camera.h"
 #include "../include/metric.h"
-#include "../include/cuda_routines.cuh"
+#include "../include/cuda_routines.h"
 #include "omp.h"        // This is from OpenMP, need to pass -fopenmp as a compiler flag to use it
 
 // Set image variables in the Camera class

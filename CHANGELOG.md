@@ -12,3 +12,6 @@ Changes:
 
 Dev notes:
     - gpu option currently doesn't work (it is just a blank function call)
+    - cuda_debug has been created and now does tensor addition on the cpu and the gpu
+        - the gpu is much slower for small number of additions, but much faster for large additions
+    - cuda_classes has been created and contains a special Vec3 class for use in the gpu
