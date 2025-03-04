@@ -35,10 +35,10 @@ int main () {
     std::cout << "adding arrays..." << std::endl;
 
     // add (on cpu)
-    cpu_add(nx, ny, host_arr1, host_arr2, host_arr3);
+    //cpu_add(nx, ny, host_arr1, host_arr2, host_arr3);
 
     // add (on gpu)
-    //execute_test_kernel(nx, ny, host_arr1, host_arr2, host_arr3);
+    execute_test_kernel(nx, ny, host_arr1, host_arr2, host_arr3);
 
     /*
     std::cout << "printing arrays..." << std::endl;

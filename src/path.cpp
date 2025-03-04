@@ -167,7 +167,7 @@ std::vector<Vec4> Path::rkf45_integrate(double dlam, Metric& metric) {
 // cash karp!!
 double Path::cashkarp_propagate(double dlam, Metric& metric) {
 
-    // do the rkf45 integration step
+    // do the cashkarp integration step
     // returns a list: {y1_order4, y1_order5, y2_order4, y2_order5}
     std::vector<Vec4> ylist { cashkarp_integrate(dlam, metric) };
 
@@ -216,7 +216,7 @@ double Path::cashkarp_propagate(double dlam, Metric& metric) {
 
     if (dlam > new_dlam) {
         // reintegrate and use the new values
-        ylist = rkf45_integrate(new_dlam, metric);
+        ylist = cashkarp_integrate(new_dlam, metric);
     }
 
     // update position, velocity with the fifth order estimate

@@ -9,9 +9,10 @@ Changes:
     - Changed .gitignore
     - Updated make clean to also clean out binaries
     - Changed the Camera class to allow for three different types of parallel types: 0 (cpu), 1 (cpu, multi), 3 (gpu)
-
-Dev notes:
-    - gpu option currently doesn't work (it is just a blank function call)
     - cuda_debug has been created and now does tensor addition on the cpu and the gpu
         - the gpu is much slower for small number of additions, but much faster for large additions
-    - cuda_classes has been created and contains a special Vec3 class for use in the gpu
+    - cuda_classes has been created and contains special Vec3, Vec4, Path classes for use in the gpu
+    - Added GPU processing!
+
+dev notes:
+    - gpu processing is still very barebones, and needs to be better integrated into the rest of the codebase

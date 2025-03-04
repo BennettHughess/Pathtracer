@@ -165,8 +165,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
             break;
         case 2:
             std::clog << "gpu" << std::endl;
-            //cuda_pathtrace(condition, dlam, metric, image_height, image_width, paths);
-            test_func();
+            cuda_pathtrace(condition, dlam, metric, paths, image_height, image_width);
             break;
         default:
             break;
