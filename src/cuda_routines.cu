@@ -15,13 +15,15 @@ __global__ void pathtrace_kernel(CudaPath *paths, size_t pitch, int image_width,
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
 
+    //printf("KERNEL: thread %d %d launched\n", i, j);
+
     // absolute incomprehensible code to get paths[i][j]
     CudaPath& path = ((CudaPath*)((char*)paths + i * pitch))[j];
 
     // propagate path!
     if (i < image_height && j < image_width) {
     
-            path.loop_propagate(dlam, i, j);
+            path.loop_propagate(dlam);
         
     }
 
@@ -50,6 +52,10 @@ void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Met
             host_paths[i*image_width + j].set_velocity(
                 Vec4_to_CudaVec4(paths[i][j].get_velocity())
             );
+
+            host_paths[i*image_width + j].set_tolerance(paths[i][j].get_tolerance());
+            host_paths[i*image_width + j].set_min_dlam(paths[i][j].get_min_dlam());
+            host_paths[i*image_width + j].set_max_dlam(paths[i][j].get_max_dlam());
         }
     }
 
@@ -68,7 +74,7 @@ void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Met
     std::cout<< "CUDA: executing kernel..." << std::endl;
 
     // run kernel
-    dim3 threadsPerBlock(10, 10);
+    dim3 threadsPerBlock(16, 16); // how many threads per block realistically?
     dim3 numBlocks(image_width / threadsPerBlock.x, image_height / threadsPerBlock.y);
     pathtrace_kernel<<<numBlocks, threadsPerBlock>>>(dev_paths, dev_pitch, image_width, image_height, dlam);
     cudaDeviceSynchronize();

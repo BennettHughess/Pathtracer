@@ -8,7 +8,7 @@
         "image":
         {
             "width": 1920,
-            "height": 1080
+            "height": 1280
         },
         "viewport":
         {
@@ -31,9 +31,9 @@
     {
         "type": "CashKarp",
         "dlam": 0.1,
-        "max_dlam": 0.1,
+        "max_dlam": 5,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-7
+        "tolerance": 1.0E-9
     },
     "parallel":
     {

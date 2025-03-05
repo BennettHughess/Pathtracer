@@ -16,3 +16,7 @@ Changes:
 
 dev notes:
     - gpu processing is still very barebones, and needs to be better integrated into the rest of the codebase
+        - I have implemented passing tolerance, min_dlam, max_dlam to the cuda paths, but still need to pass collision conditions and integrator type
+        - i also need to provide explicit type checking to make sure nothing is passed that shouldnt be
+    - need to provide more dynamic thread allocation
+    - i also need to look into what kind of speedup i can get from passing everything as a float

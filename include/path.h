@@ -56,9 +56,15 @@ class Path {
         // Access functions
         Vec4& get_position() {return position;}
         Vec4& get_velocity() {return velocity;}
+        
+        Integrator get_integrator() {return integrator;}
+        double get_tolerance() {return tolerance;}
+        double get_min_dlam() {return min_dlam;}
+        double get_max_dlam() {return max_dlam;}
 
         void set_position(const Vec4& pos) {position = pos;}
         void set_velocity(const Vec4& vel) {velocity = vel;}
+
         void set_integrator(Integrator integ) {integrator = integ;}
         void set_min_dlam(double min) {min_dlam = min;}
         void set_max_dlam(double max) {max_dlam = max;}

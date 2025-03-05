@@ -1,6 +1,4 @@
 # Compiler
-#CXX := g++
-#CXX := nvcc
 CXX := clang++
 CUDACXX := nvcc
 

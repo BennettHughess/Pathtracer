@@ -33,7 +33,7 @@ void CudaPath::rk4_propagate(double dlam) {
 }
 
 // cash karp!!
-double CudaPath::cashkarp_propagate(double dlam, CudaVec4* ylist, int i, int j) {
+double CudaPath::cashkarp_propagate(double dlam, CudaVec4* ylist) {
 
     // returns a list: {y1_order4, y1_order5, y2_order4, y2_order5}
     cashkarp_integrate(dlam, ylist);
@@ -145,9 +145,26 @@ void CudaPath::cashkarp_integrate(double dlam, CudaVec4* ylist) {
 
 }
 
+double CudaPath::propagate(double dlam, CudaVec4* ylist) {
+
+    switch (integrator) {
+
+        case RK4:
+            rk4_propagate(dlam);
+            break;
+
+        case CashKarp:
+            dlam = cashkarp_propagate(dlam, ylist);
+            break;
+
+    }    
+    return dlam;
+
+}
+
 // Propagate path until condition is no longer met
 // Condition is currently temporary
-void CudaPath::loop_propagate(double dlam, int i, int j) {
+void CudaPath::loop_propagate(double dlam) {
 
     // ylist to be overwritten (allocate here)
     CudaVec4 ylist[4] = {CudaVec4({0,0,0,0}),CudaVec4({0,0,0,0}),CudaVec4({0,0,0,0}),CudaVec4({0,0,0,0})};
@@ -179,14 +196,10 @@ void CudaPath::loop_propagate(double dlam, int i, int j) {
         if ((j == 1919 && i == 1079) or (j == 1000 && i == 500)) {
             printf("KERNEL: path %d %d is at position %f %f %f %f with rho %f. far_from = %d \n", i, j, position[0], position[1], position[2], position[3], rho, far_from_event_horizon);
         }
-        //printf("abt to propagate");
         */
 
-        dlam = cashkarp_propagate(dlam, ylist, i, j);
-        //rk4_propagate(dlam);
+        dlam = propagate(dlam, ylist);
 
-
-        //printf("propagated");
     }
 
 }

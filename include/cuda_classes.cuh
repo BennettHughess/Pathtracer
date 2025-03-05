@@ -100,21 +100,31 @@ __host__ CudaVec4 Vec4_to_CudaVec4(Vec4 v);
 
 class CudaPath {
 
+    public:
+        
+        enum Integrator {
+            RK4,
+            CashKarp
+        };
+
     private:
         // Paths have a position and direction (4-vectors)
         CudaVec4 position;
         CudaVec4 velocity;
 
+        // Paths need an integrator to integrate the geodesic equations
+        Integrator integrator {CashKarp};
+
         // for adaptive integrators, we need a minimum step size, maximum step size, and tolerance
-        double tolerance {1e-7};
+        double tolerance {1e-6};
         double min_dlam {1e-20};
-        double max_dlam {0.1};
+        double max_dlam {5};
 
         // Propagation methods
         __host__ __device__ void rk4_propagate(double dlam);
 
         // Cash Karp
-        __host__ __device__ double cashkarp_propagate(double dlam, CudaVec4* ylist, int i, int j);
+        __host__ __device__ double cashkarp_propagate(double dlam, CudaVec4* ylist);
         __host__ __device__ void cashkarp_integrate(double dlam, CudaVec4* ylist);
 
         // temporary function to get acceleration until metric class is implemented
@@ -130,11 +140,17 @@ class CudaPath {
         __host__ __device__ CudaVec4& get_position() {return position;}
         __host__ __device__ CudaVec4& get_velocity() {return velocity;}
 
+        __host__ __device__ void set_integrator(Integrator integ) {integrator = integ;}
+        __host__ __device__ void set_min_dlam(double min) {min_dlam = min;}
+        __host__ __device__ void set_max_dlam(double max) {max_dlam = max;}
+        __host__ __device__ void set_tolerance(double tol) {tolerance = tol;}
+
         __host__ __device__ void set_position(const CudaVec4& pos) {position = pos;}
         __host__ __device__ void set_velocity(const CudaVec4& vel) {velocity = vel;}
 
         // Propagate path until condition (which is a lambda function) is met
         // note: condition is currently not passed
-        __host__ __device__ void loop_propagate(double dlam, int i, int j);
+        __host__ __device__ void loop_propagate(double dlam);
+        __host__ __device__ double propagate(double dlam, CudaVec4* ylist);
 
 };
