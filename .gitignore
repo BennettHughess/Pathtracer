@@ -4,8 +4,12 @@
 # some image files
 images/*.ppm
 *.tif
-*.ppm
+./*.ppm
 
 # VScode stuff
 .vscode 
 *.code-workspace
+
+# compiled stuff
+bin/*
+build/*

@@ -152,7 +152,10 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
 // Determine which pathtracing routine to call
 void Camera::pathtrace(Scenario& scenario, const double dlam) {
 
-    Metric metric = scenario.get_metric();
+    // Only define metric if CUDA is installed
+    #ifdef CUDA_INSTALLED
+        Metric metric = scenario.get_metric();
+    #endif
 
     std::clog << "Beginning pathtrace with parallel processing type: ";
 
@@ -169,8 +172,13 @@ void Camera::pathtrace(Scenario& scenario, const double dlam) {
             break;
         case 2:
             std::clog << "gpu" << std::endl;
-            try {cuda_pathtrace(scenario, dlam, metric, paths, image_height, image_width);}
-            catch (int Err) {throw Err;}
+            // Preprocessor directives to optionally throw error if CUDA not compiled
+            #ifdef CUDA_INSTALLED
+                try {cuda_pathtrace(scenario, dlam, metric, paths, image_height, image_width);}
+                catch (int Err) {throw Err;}
+            #else
+                throw 100;
+            #endif
             break;
         default:
             break;
