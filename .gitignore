@@ -4,6 +4,7 @@
 # some image files
 images/*.ppm
 *.tif
+main.ppm
 ./*.ppm
 
 # VScode stuff
