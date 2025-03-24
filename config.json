@@ -33,7 +33,7 @@
         "dlam": 0.1,
         "max_dlam": 5,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-6
+        "tolerance": 1.0E-4
     },
     "parallel":
     {

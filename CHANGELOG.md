@@ -18,3 +18,4 @@ Changes:
 - `cuda_misc.cuh` has been created, and currently only contains one function (but may include more later on).
 - `cuda_metric.cuh` has been created and contains a CUDA-suitable metric, which takes calls from the config file.
 - Updated `makefile` so it is more concise and so that the CUDA code only compiles if nvcc is installed.
+    - It also creates build, bin folders if necessary.

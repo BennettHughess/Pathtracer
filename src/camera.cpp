@@ -184,7 +184,6 @@ void Camera::pathtrace(Scenario& scenario, const double dlam) {
             break;
     }
 
-    std::clog << '\n';
 }
 
 void Camera::default_pathtrace(Scenario& scenario, const double dlam) {
@@ -203,6 +202,8 @@ void Camera::default_pathtrace(Scenario& scenario, const double dlam) {
 
         }
     }
+
+    std::clog << std::endl;
 
 }
 
@@ -226,4 +227,6 @@ void Camera::multi_pathtrace(Scenario& scenario, const double dlam) {
         }
     }
 
+    std::clog << std::endl;
+    
 }
