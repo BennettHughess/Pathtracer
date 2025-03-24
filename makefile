@@ -2,85 +2,97 @@
 CXX := clang++
 CUDACXX := nvcc
 
+# Check if the CUDA compiler (probably nvcc) is installed using literal magic
+# if nvcc is installed, find the path to the cuda folder and export it
+HAS_NVCC := $(shell command -v $(CUDACXX) >/dev/null 2>&1 && echo 1 || echo 0)
+ifeq ($(HAS_NVCC),1)
+CUDA_LIB_PATH := $(shell dirname $(shell command -v $(CUDACXX)))/../lib64
+endif
+
+# Add some info about nvcc
+ifeq ($(HAS_NVCC),1)
+$(info NOTE: $(CUDACXX) was found. Compiling with CUDA dependencies. CUDA lib location: $(CUDA_LIB_PATH))
+else
+$(info NOTE: $(CUDACXX) was not found. Compiling without CUDA dependencies.)
+endif
+
 # Compiler flags
-CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -o
-LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -L/usr/local/cuda/lib64 -std=c++17 -lcudart -o
-CUDACXX_FLAGS := -c -arch=sm_86 -ccbin=$(CXX) -O3 -dc -std=c++17 -o
-CUDACXX_LFLAGS := -arch=sm_86 -ccbin=$(CXX) -O3 -dlink -std=c++17 -o
+CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17
+LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -L$(CUDA_LIB_PATH) -lcudart
+CUDACXX_FLAGS := -c -arch=sm_86 -ccbin=$(CXX) -O3 -dc -std=c++17
+CUDACXX_LFLAGS := -arch=sm_86 -ccbin=$(CXX) -O3 -dlink -std=c++17
 
 # Directories
-SRC := src/
-INC := include/
-BLD := build/
-TST := test/
+SRC := src
+INC := include
+BLD := build
+TST := test
+BIN := bin
 
-# basic commands to use
-all: bin/main bin/debug bin/cuda_debug
+# Source test files
+TESTS := main.cpp debug.cpp cuda_debug.cpp
+CPP_SRCS := background.cpp camera.cpp metric.cpp path.cpp vec3.cpp vec4.cpp scenario.cpp
+CUDA_SRCS := cuda_routines.cu cuda_classes.cu cuda_metric.cu cuda_misc.cu
 
-main: bin/main
+# Object files (only define cuda files if NVCC installed)
+ifeq ($(HAS_NVCC),1)
+CUDA_OBJS := $(addprefix $(BLD)/, $(CUDA_SRCS:.cu=.o))
+CUDA_OUT := $(BLD)/cuda_out.o
+else
+CUDA_OBJS :=
+CUDA_OUT :=
+endif
 
-debug: bin/debug
+CPP_OBJS := $(addprefix $(BLD)/, $(CPP_SRCS:.cpp=.o))
+TEST_OBJS := $(addprefix $(BLD)/, $(TESTS:.cpp=.o))
 
-cuda_debug: bin/cuda_debug
+# Basic commands to use
+all: $(BIN)/main $(BIN)/debug $(BIN)/cuda_debug
+
+main: $(BIN)/main
+
+debug: $(BIN)/debug
+
+ifeq ($(HAS_NVCC),1)
+cuda_debug: $(BIN)/cuda_debug
+endif
 
 clean:
-	rm build/*; rm bin/*
+	rm -f build/*
+	rm -f bin/*
 
-# Compile tests
-bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)main.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/main
+# Compile executables
+$(BIN)/main: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/main.o 
+	$(CXX) $^ $(LDFLAGS) -o $@
 
-bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/debug
+$(BIN)/debug: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/debug.o 
+	$(CXX) $^ $(LDFLAGS) -o $@
 
-bin/cuda_debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)cuda_debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/cuda_debug
+ifeq ($(HAS_NVCC),1)
+$(BIN)/cuda_debug: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/cuda_debug.o 
+	$(CXX) $^ $(LDFLAGS) -o $@
+endif
 
 # Compile test objects
-build/main.o: $(TST)main.cpp
-	$(CXX) $(TST)main.cpp $(CXXFLAGS) $(BLD)main.o
+$(BLD)/%.o: $(TST)/%.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@
 
-build/debug.o: $(TST)debug.cpp
-	$(CXX) $(TST)debug.cpp $(CXXFLAGS) $(BLD)debug.o
+# Compile normal cpp objects
+$(BLD)/%.o: $(SRC)/%.cpp $(INC)/%.h
+	$(CXX) $(CXXFLAGS) $< -o $@
 
-build/cuda_debug.o: $(TST)cuda_debug.cpp
-	$(CXX) $(TST)cuda_debug.cpp $(CXXFLAGS) $(BLD)cuda_debug.o
+# Only do CUDA stuff if NVCC is installed
+ifeq ($(HAS_NVCC),1)
 
-# Compile source objects
-build/background.o: $(SRC)background.cpp $(INC)background.h
-	$(CXX) $(SRC)background.cpp $(CXXFLAGS) $(BLD)background.o
+# Compile cuda_out (for linking)
+$(CUDA_OUT): $(CUDA_OBJS)
+	$(CUDACXX) $^ $(CUDACXX_LFLAGS) -o $@
 
-build/camera.o: $(SRC)camera.cpp $(INC)camera.h
-	$(CXX) $(SRC)camera.cpp $(CXXFLAGS) $(BLD)camera.o
+# Compile CUDA objects (and specially compile cuda_routines)
+$(BLD)/%.o: $(SRC)/%.cu $(INC)/%.cuh
+	$(CUDACXX) $(CUDACXX_FLAGS) $< -o $@
 
-build/metric.o: $(SRC)metric.cpp $(INC)metric.h
-	$(CXX) $(SRC)metric.cpp $(CXXFLAGS) $(BLD)metric.o
+$(BLD)/cuda_routines.o: $(SRC)/cuda_routines.cu $(INC)/cuda_routines.h
+	$(CUDACXX) $(CUDACXX_FLAGS) $< -o $@
 
-build/path.o: $(SRC)path.cpp $(INC)path.h
-	$(CXX) $(SRC)path.cpp $(CXXFLAGS) $(BLD)path.o
-
-build/vec3.o: $(SRC)vec3.cpp $(INC)vec3.h
-	$(CXX) $(SRC)vec3.cpp $(CXXFLAGS) $(BLD)vec3.o
-
-build/vec4.o: $(SRC)vec4.cpp $(INC)vec4.h
-	$(CXX) $(SRC)vec4.cpp $(CXXFLAGS) $(BLD)vec4.o
-
-build/scenario.o: $(SRC)scenario.cpp $(INC)scenario.h
-	$(CXX) $(SRC)scenario.cpp $(CXXFLAGS) $(BLD)scenario.o
-
-# Compile cude device code (note: you need to use nvcc to link cuda code first, then link cuda_out.o later).
-build/cuda_out.o: $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o
-	$(CUDACXX) $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(CUDACXX_LFLAGS) $(BLD)cuda_out.o
-
-# Compile other cuda objects
-build/cuda_routines.o: $(SRC)cuda_routines.cu $(INC)cuda_routines.h
-	$(CUDACXX) $(SRC)cuda_routines.cu $(CUDACXX_FLAGS) $(BLD)cuda_routines.o
-
-build/cuda_classes.o: $(SRC)cuda_classes.cu $(INC)cuda_classes.cuh 
-	$(CUDACXX) $(SRC)cuda_classes.cu $(CUDACXX_FLAGS) $(BLD)cuda_classes.o
-
-build/cuda_metric.o: $(SRC)cuda_metric.cu $(INC)cuda_metric.cuh 
-	$(CUDACXX) $(SRC)cuda_metric.cu $(CUDACXX_FLAGS) $(BLD)cuda_metric.o
-
-build/cuda_misc.o: $(SRC)cuda_misc.cu $(INC)cuda_misc.cuh 
-	$(CUDACXX) $(SRC)cuda_misc.cu $(CUDACXX_FLAGS) $(BLD)cuda_misc.o
+endif
