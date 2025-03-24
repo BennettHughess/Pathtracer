@@ -63,15 +63,15 @@ Vec3 cross(const Vec3& v1, const Vec3& v2);
 // 3-vectors have a coordinate system
 namespace CoordinateSystem3 {
 
-    Vec3 Cartesian_to_Spherical(Vec3& cartesian);
+    Vec3 Cartesian_to_Spherical(const Vec3& cartesian);
 
-    Vec3 Spherical_to_Cartesian(Vec3& spherical);
+    Vec3 Spherical_to_Cartesian(const Vec3& spherical);
 
     // converts a cartesian vector at a given spherical position to a spherical vector
-    Vec3 CartesianVector_to_SphericalVector(Vec3& cartesian_vec, Vec3& spherical_pos);
+    Vec3 CartesianVector_to_SphericalVector(const Vec3& cartesian_vec, const Vec3& spherical_pos);
 
     // converts a cartesian TANGENT to a spherical TANGENT
-    Vec3 CartesianTangent_to_SphericalTangent(Vec3& cartesian_position, Vec3& cartesian_velocity);
+    Vec3 CartesianTangent_to_SphericalTangent(const Vec3& cartesian_position, const Vec3& cartesian_velocity);
 
     // convert spherical position into the correct domains
     Vec3 Normalize_SphericalVector(Vec3& spherical);

@@ -2,7 +2,9 @@
 
 Authors: Ben Hughes
 
-This project is capable of pathtracing null geodesics and recovering images around selected spacetimes. At the moment, the program is capable of tracing flat space (in Cartesian and spherical coordinates) and in the Schwarzschild metric. The camera position, field of view, and other related quantities can be altered inside the config.json file contained in the root directory of the project.
+This project is capable of pathtracing null geodesics and recovering images around selected spacetimes -- in particular, this project can currently generate images of Schwarzschild black holes and in Minkowski spacetime using both spherical and Cartesian coordinates.
+
+The camera position, field of view, and other related quantities can be altered inside the config.json file contained in the root directory of the project.
 
 ![img1](example_images/schwarzschild_0.001dlam.png)
 ![img2](example_images/schwarzschild_cashkarp.png)

@@ -9,6 +9,7 @@
 #include "../include/camera.h"
 #include "../include/path.h"
 #include "../include/background.h"
+#include "../include/scenario.h"
 #include "../lib/json.hpp"
 
 // for convenience
@@ -122,29 +123,32 @@ int main(int argc, char *argv[]) {
     const double viewport_distance {config["camera"]["viewport"]["distance"]};
     camera.set_viewport_settings(viewport_fov, viewport_distance);
 
-    // Initialize a metric,
-    double black_hole_mass {config["metric"]["black_hole_mass"]};
-    std::string str_metric_type {config["metric"]["type"]};
+    // Initialize the scenario
+    std::string str_scenario_type {config["scenario"]["type"]};
+    ScenarioParameters scenario_params {
+        config["scenario"]["black_hole_mass"],
+        background_radius
+    };
 
-    Metric::MetricType metric_type {};
-    if (str_metric_type == "CartesianMinkowskiMetric") {
-        metric_type = Metric::MetricType::CartesianMinkowskiMetric;
+    Scenario::ScenarioType scenario_type;
+    if (str_scenario_type == "SphericalMinkowski") {
+        scenario_type = Scenario::ScenarioType::SphericalMinkowski;
     }
-    else if (str_metric_type == "SphericalMinkowskiMetric") {
-        metric_type = Metric::MetricType::SphericalMinkowskiMetric;
+    else if (str_scenario_type == "CartesianMinkowski") {
+        scenario_type = Scenario::ScenarioType::CartesianMinkowski;
     }
-    else if (str_metric_type == "SchwarzschildMetric") {
-        metric_type = Metric::MetricType::SchwarzschildMetric;
+    else if (str_scenario_type == "Schwarzschild") {
+        scenario_type = Scenario::ScenarioType::Schwarzschild;
     }
-    else if (str_metric_type == "CartesianIsotropicSchwarzschildMetric") {
-        metric_type = Metric::MetricType::CartesianIsotropicSchwarzschildMetric;
+    else if (str_scenario_type == "CartesianSchwarzschild") {
+        scenario_type = Scenario::ScenarioType::CartesianSchwarzschild;
     }
     else {
         std::cerr << "Config file: unknown metric type." <<'\n';
-        metric_type = Metric::MetricType::CartesianMinkowskiMetric;
+        scenario_type = Scenario::ScenarioType::CartesianMinkowski;
     }
 
-    Metric metric { metric_type, black_hole_mass };
+    Scenario scenario(scenario_type, scenario_params);
 
     // Configure the integrator (with tolerances as necessary)
     std::string str_integrator_type {config["integrator"]["type"]};
@@ -193,41 +197,15 @@ int main(int argc, char *argv[]) {
     */
 
     // Initialize paths (this sets up the paths array)
-    camera.initialize_paths(metric, integrator, max_dlam, min_dlam, tolerance);
-
-    // Define the "not colliding" conditions. we pass this to the pathtracer to know when to stop pathtracing.
-    std::function<bool(Path&)> collision_checker = [background_radius, black_hole_mass](Path& path) -> bool {
-        
-        /*  // CODE FOR SCHWARZSCHILD CHECKER
-        // get radius
-        double radius = path.get_position()[1];
-
-        // Collision happens when photon is outside background
-        bool inside_background { radius < background_radius };
-
-        // or close to event horizon
-        bool far_from_event_horizon { radius > 2.01*black_hole_mass} ;
-
-        return inside_background && far_from_event_horizon;
-        */
-
-        // CODE FOR ISOTROPIC CARTESIAN SCHWARZSCHILD
-        Vec4 pos = path.get_position();
-        double rho = sqrt(pos[1]*pos[1] + pos[2]*pos[2] + pos[3]*pos[3]);
-        double rho_s = 2.*black_hole_mass/4;
-        double radius = rho*pow((1 + rho_s/rho),2);
-
-        // Collision happens when photon is outside background
-        bool inside_background { radius < background_radius };
-
-        // or close to event horizon
-        bool far_from_event_horizon { rho > 1.01*rho_s} ;
-
-        return inside_background && far_from_event_horizon;
-    };
+    camera.initialize_paths(scenario.get_metric(), integrator, max_dlam, min_dlam, tolerance);
 
     // Pathtrace until a collision happens
-    camera.pathtrace(collision_checker, dlam, metric);
+    try {
+    camera.pathtrace(scenario, dlam);
+    } catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Pathtrace failed." << std::endl;
+        return 1;
+    }
 
     std::cout << "Writing to file!" << '\n';
 
@@ -243,20 +221,10 @@ int main(int argc, char *argv[]) {
         for (int j {0}; j < image_width; ++j) {
 
             // Get collision position
-            Vec3 collision_pos = camera.get_paths()[i][j].get_position().get_vec3();
-            Vec3 spherical_collision_pos = CoordinateSystem3::Cartesian_to_Spherical(collision_pos);
-
-            double rho = spherical_collision_pos.norm();
-            double rho_s = 2.*black_hole_mass/4.;
-            double radius = rho*pow((1 + rho_s/rho),2);
-
-            Vec3 pos = {radius, spherical_collision_pos[1], spherical_collision_pos[2]};
+            Vec3 pos = scenario.get_pixel_pos(camera.get_paths()[i][j]);
 
             // Get the ray's color and save as pixel_color
             Vec3 pixel_color = background.get_color(pos); // NOTE what is passed depends on the metric of choice
-
-            //std::clog << "collision for " << i << ' ' << j << " is at " << spherical_collision_pos 
-            //    << " with color " << pixel_color << '\n';
 
             // Write color to output stream
             filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';

@@ -1,13 +1,14 @@
 #pragma once
 #include "vec3.h"
 #include "path.h"
+#include "scenario.h"
 
 /*
     These are specific cuda routines invoked by other functions
 */
 
 // Pathtracing function with GPU parallelization
-void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric, 
+void cuda_pathtrace(Scenario& scenario, const double dlam, Metric& metric, 
     std::vector<std::vector<Path>> &paths, int image_height, int image_width);
 
 // Test function

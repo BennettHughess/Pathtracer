@@ -306,10 +306,12 @@ double Path::propagate(double dlam, Metric& metric) {
 }
 
 // Propagate path until condition is no longer met
-void Path::loop_propagate(std::function<bool(Path&)> condition, double dlam, Metric& metric) {
-    // evaluate condition at every loop
+void Path::loop_propagate(Scenario& scenario, double dlam) {
 
-    while (condition(*this)) {
+    Metric metric = scenario.get_metric();
+
+    // evaluate condition at every loop
+    while (scenario.collision_checker(*this)) {
         dlam = propagate(dlam, metric);
     }
 

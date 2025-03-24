@@ -22,7 +22,7 @@ void Camera::set_viewport_settings(double fov, double dis) {
 }
 
 // Initialize paths
-void Camera::initialize_paths(Metric& metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance) {
+void Camera::initialize_paths(Metric metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance) {
 
     // Initialize vectors to begin iterating over viewport
     viewport_origin = directionhat*viewport_distance - (viewport_width/2)*viewport_uhat - (viewport_height/2)*viewport_vhat;
@@ -150,22 +150,27 @@ Vec3 rotate_vector(const Vec3& vector, const Vec3& axis_vector, const double rot
 }
 
 // Determine which pathtracing routine to call
-void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
+void Camera::pathtrace(Scenario& scenario, const double dlam) {
+
+    Metric metric = scenario.get_metric();
 
     std::clog << "Beginning pathtrace with parallel processing type: ";
 
     switch (parallel_type) {
         case 0:
             std::clog << "single threaded" << std::endl;
-            default_pathtrace(condition, dlam, metric);
+            try {default_pathtrace(scenario, dlam);}
+            catch (int Err) {throw Err;}
             break;
         case 1:
         std::clog << "multithreaded (" << threads << " threads)" << std::endl;
-            multi_pathtrace(condition, dlam, metric);
+            try {multi_pathtrace(scenario, dlam);}
+            catch (int Err) {throw Err;}
             break;
         case 2:
             std::clog << "gpu" << std::endl;
-            cuda_pathtrace(condition, dlam, metric, paths, image_height, image_width);
+            try {cuda_pathtrace(scenario, dlam, metric, paths, image_height, image_width);}
+            catch (int Err) {throw Err;}
             break;
         default:
             break;
@@ -174,7 +179,7 @@ void Camera::pathtrace(std::function<bool(Path&)> condition, const double dlam, 
     std::clog << '\n';
 }
 
-void Camera::default_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
+void Camera::default_pathtrace(Scenario& scenario, const double dlam) {
 
     // Loop through image
     for (int i {0}; i < image_height; ++i) {
@@ -186,14 +191,14 @@ void Camera::default_pathtrace(std::function<bool(Path&)> condition, const doubl
         for (int j = 0; j < image_width; ++j) {
 
             // Trace a ray till it collides
-            paths[i][j].loop_propagate(condition, dlam, metric);
+            paths[i][j].loop_propagate(scenario, dlam);
 
         }
     }
 
 }
 
-void Camera::multi_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric) {
+void Camera::multi_pathtrace(Scenario& scenario, const double dlam) {
 
     omp_set_num_threads(threads);
     // Loop through image
@@ -208,7 +213,7 @@ void Camera::multi_pathtrace(std::function<bool(Path&)> condition, const double 
         for (int j = 0; j < image_width; ++j) {
 
             // Trace a ray till it collides
-            paths[i][j].loop_propagate(condition, dlam, metric);
+            paths[i][j].loop_propagate(scenario, dlam);
 
         }
     }

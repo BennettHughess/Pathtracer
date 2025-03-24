@@ -2,6 +2,10 @@
 #include "vec4.h"
 #include <functional>
 #include "metric.h"
+#include "scenario.h"
+
+// Forward declare scenario to avoid circular dependencies
+class Scenario;
 
 // Define class of paths
 class Path {
@@ -74,8 +78,8 @@ class Path {
         // Returns a dlam (for use with adaptive step sizes)
         double propagate(double dlam, Metric& metric);
 
-        // Propagate path until condition (which is a lambda function) is met
-        void loop_propagate(std::function<bool(Path&)> condition, double dlam, Metric& metric);
+        // Propagate path until condition is met
+        void loop_propagate(Scenario& scenario, double dlam);
 
         // Renormalize time component of photon velocity so that it is a null vector
         void null_normalize(Metric& metric);

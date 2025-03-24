@@ -10,7 +10,11 @@
 
 int main() {
 
-    Metric metric { Metric::CartesianIsotropicSchwarzschildMetric, 0};
+    MetricParameters metric_params {
+        1
+    };
+
+    Metric metric { Metric::CartesianIsotropicSchwarzschildMetric, metric_params};
 
     // Cartesian 3-position and 3-velocity
     Vec3 cartesian_position3 {3,0,0};

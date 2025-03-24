@@ -27,14 +27,14 @@ clean:
 	rm build/*; rm bin/*
 
 # Compile tests
-bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)main.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o $(LDFLAGS) bin/main
+bin/main: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)main.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
+	$(CXX) $(BLD)main.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/main
 
-bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o $(LDFLAGS) bin/debug
+bin/debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
+	$(CXX) $(BLD)debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/debug
 
-bin/cuda_debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o
-	$(CXX) $(BLD)cuda_debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_out.o $(LDFLAGS) bin/cuda_debug
+bin/cuda_debug: $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_debug.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o
+	$(CXX) $(BLD)cuda_debug.o $(BLD)background.o $(BLD)camera.o $(BLD)metric.o $(BLD)path.o $(BLD)vec3.o $(BLD)vec4.o $(BLD)scenario.o $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(BLD)cuda_out.o $(LDFLAGS) bin/cuda_debug
 
 # Compile test objects
 build/main.o: $(TST)main.cpp
@@ -65,9 +65,12 @@ build/vec3.o: $(SRC)vec3.cpp $(INC)vec3.h
 build/vec4.o: $(SRC)vec4.cpp $(INC)vec4.h
 	$(CXX) $(SRC)vec4.cpp $(CXXFLAGS) $(BLD)vec4.o
 
+build/scenario.o: $(SRC)scenario.cpp $(INC)scenario.h
+	$(CXX) $(SRC)scenario.cpp $(CXXFLAGS) $(BLD)scenario.o
+
 # Compile cude device code (note: you need to use nvcc to link cuda code first, then link cuda_out.o later).
-build/cuda_out.o: $(BLD)cuda_routines.o $(BLD)cuda_classes.o
-	$(CUDACXX) $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(CUDACXX_LFLAGS) $(BLD)cuda_out.o
+build/cuda_out.o: $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o
+	$(CUDACXX) $(BLD)cuda_routines.o $(BLD)cuda_classes.o $(BLD)cuda_metric.o $(BLD)cuda_misc.o $(CUDACXX_LFLAGS) $(BLD)cuda_out.o
 
 # Compile other cuda objects
 build/cuda_routines.o: $(SRC)cuda_routines.cu $(INC)cuda_routines.h
@@ -75,3 +78,9 @@ build/cuda_routines.o: $(SRC)cuda_routines.cu $(INC)cuda_routines.h
 
 build/cuda_classes.o: $(SRC)cuda_classes.cu $(INC)cuda_classes.cuh 
 	$(CUDACXX) $(SRC)cuda_classes.cu $(CUDACXX_FLAGS) $(BLD)cuda_classes.o
+
+build/cuda_metric.o: $(SRC)cuda_metric.cu $(INC)cuda_metric.cuh 
+	$(CUDACXX) $(SRC)cuda_metric.cu $(CUDACXX_FLAGS) $(BLD)cuda_metric.o
+
+build/cuda_misc.o: $(SRC)cuda_misc.cu $(INC)cuda_misc.cuh 
+	$(CUDACXX) $(SRC)cuda_misc.cu $(CUDACXX_FLAGS) $(BLD)cuda_misc.o

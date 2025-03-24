@@ -1,10 +1,8 @@
 # TO DO
 
 - Optimize existing codebase
-- Run the code on the GPU
-- Make the codebase play nicer with different metrics
-    - Let each metric have their own collision conditions
-        - It might be concievable to have prebuild "scenarios" with their own collision conditions and metrics
-    - Let each metric have their own `get_image_coords` function (this is necessary because you may need to convert from arbitrary coordinates to spherical coordinates)
+    - What if I passed everything as a float on the GPU side of things?
+    - Better warp allocation on the GPU side? Profile the code.
+- Restructure the Background and Camera classes to take input from the Scenario class and make it easier to develop code new code for different scenarios/metrics.
 - Implement image handling with PNG++ over PPMs (https://www.nongnu.org/pngpp/doc/0.2.1/)
 - Add a script to create video

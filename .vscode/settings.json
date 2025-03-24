@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.cuh": "cuda-cpp",
         "vector": "cpp",
         "fstream": "cpp",
         "algorithm": "cpp",
@@ -73,6 +74,13 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "codecvt": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "*.tcc": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+        "memory_resource": "cpp",
+        "random": "cpp",
+        "string_view": "cpp",
+        "numbers": "cpp"
     }
 }

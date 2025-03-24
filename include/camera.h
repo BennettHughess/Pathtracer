@@ -4,6 +4,7 @@
 #include <omp.h>
 #include "vec3.h"
 #include "path.h"
+#include "scenario.h"
 
 // Define Camera class (including viewport stuff)
 class Camera {
@@ -82,7 +83,7 @@ class Camera {
         void set_viewport_settings(double fov, double dis = 1);
 
         // Initialize viewport
-        void initialize_paths(Metric& metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance);
+        void initialize_paths(Metric metric, Path::Integrator integrator, double max_dlam, double min_dlam, double tolerance);
 
         // Update the uhat and vhat vectors
         void update_viewport_vectors();
@@ -90,13 +91,13 @@ class Camera {
         // Rotate camera
         void rotate(const double pitch_angle, const double yaw_angle, const double roll_angle);
 
-        // Pathtrace until condition is no longer met (condition is a lambda function)
-        void pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
+        // Pathtrace until condition is no longer met
+        void pathtrace(Scenario& scenario, const double dlam);
 
         // Different pathtracing routines (multiprocessing, single processing etc.)
         // The cuda routine is stored in cuda_routines.h
-        void default_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
-        void multi_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric);
+        void default_pathtrace(Scenario& scenario, const double dlam);
+        void multi_pathtrace(Scenario& scenario, const double dlam);
 
 };
 

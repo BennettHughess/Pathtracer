@@ -10,7 +10,8 @@
 // Code for pathtracing with CUDA
 
 // Kernels invoked by cuda_pathtrace
-__global__ void pathtrace_kernel(CudaPath *paths, size_t pitch, int image_width, int image_height, double dlam) {
+__global__ void pathtrace_kernel(CudaPath *paths, size_t pitch, int image_width, int image_height, double dlam, 
+    Scenario::ScenarioType scenario_type, ScenarioParameters params, CudaMetric metric) {
 
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int j = blockIdx.x * blockDim.x + threadIdx.x;
@@ -23,14 +24,14 @@ __global__ void pathtrace_kernel(CudaPath *paths, size_t pitch, int image_width,
     // propagate path!
     if (i < image_height && j < image_width) {
     
-            path.loop_propagate(dlam);
+            path.loop_propagate(dlam, scenario_type, params, metric);
         
     }
 
 }
 
 // Function invoked by non-cuda functions
-void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Metric& metric, 
+void cuda_pathtrace(Scenario& scenario, const double dlam, Metric& metric, 
     std::vector<std::vector<Path>> &paths, int image_height, int image_width) {
 
     // declare array of cuda paths to be stored on the host and get pitch
@@ -39,13 +40,10 @@ void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Met
     size_t host_pitch = image_width*sizeof(CudaPath);
 
     std::cout<< "CUDA: transfering paths into cudapath array..." << std::endl;
-
     // transfer paths object into CudaPath array
     for (int i = 0; i < image_height; i++) {
         for (int j = 0; j < image_width; j++) {
-            
-            //std::cout << "path " << i << " " << j << ":     "<< paths[i][j].get_velocity() << std::endl;
-            
+                        
             host_paths[i*image_width + j].set_position(
                 Vec4_to_CudaVec4(paths[i][j].get_position())
             );
@@ -56,6 +54,23 @@ void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Met
             host_paths[i*image_width + j].set_tolerance(paths[i][j].get_tolerance());
             host_paths[i*image_width + j].set_min_dlam(paths[i][j].get_min_dlam());
             host_paths[i*image_width + j].set_max_dlam(paths[i][j].get_max_dlam());
+
+            // Some error catching if we set the wrong integrator
+            try {
+                Path::Integrator integrator = paths[i][j].get_integrator();
+
+                if (integrator == Path::RK4 or integrator == Path::CashKarp) {
+                    host_paths[i*image_width + j].set_integrator(integrator);
+                } else {
+                    throw 101;
+                };
+
+            }
+            catch(int Err) {
+                std::cerr << "CUDA ERROR " << Err << ": Invalid integrator set. Check valid integrator types." << std::endl;
+                throw Err;
+            }
+
         }
     }
 
@@ -76,7 +91,8 @@ void cuda_pathtrace(std::function<bool(Path&)> condition, const double dlam, Met
     // run kernel
     dim3 threadsPerBlock(16, 16); // how many threads per block realistically?
     dim3 numBlocks(image_width / threadsPerBlock.x, image_height / threadsPerBlock.y);
-    pathtrace_kernel<<<numBlocks, threadsPerBlock>>>(dev_paths, dev_pitch, image_width, image_height, dlam);
+    pathtrace_kernel<<<numBlocks, threadsPerBlock>>>(dev_paths, dev_pitch, image_width, image_height, dlam,
+        scenario.get_type(), scenario.get_params(), Metric_to_CudaMetric(scenario.get_metric()));
     cudaDeviceSynchronize();
 
     std::cout<< "CUDA: transfering back to host..." << std::endl;

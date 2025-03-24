@@ -1,6 +1,13 @@
 #pragma once
 #include "vec3.h"
 #include "vec4.h"
+#include "path.h"
+#include "cuda_misc.cuh"
+#include "cuda_metric.cuh"
+#include "scenario.h"
+
+//forward declare
+class CudaMetric;
 
 /****************************************************/
 // Vec3 for CUDA
@@ -100,20 +107,13 @@ __host__ CudaVec4 Vec4_to_CudaVec4(Vec4 v);
 
 class CudaPath {
 
-    public:
-        
-        enum Integrator {
-            RK4,
-            CashKarp
-        };
-
     private:
         // Paths have a position and direction (4-vectors)
         CudaVec4 position;
         CudaVec4 velocity;
 
         // Paths need an integrator to integrate the geodesic equations
-        Integrator integrator {CashKarp};
+        Path::Integrator integrator {Path::CashKarp};
 
         // for adaptive integrators, we need a minimum step size, maximum step size, and tolerance
         double tolerance {1e-6};
@@ -121,14 +121,11 @@ class CudaPath {
         double max_dlam {5};
 
         // Propagation methods
-        __host__ __device__ void rk4_propagate(double dlam);
+        __device__ void rk4_propagate(double dlam, CudaMetric& metric);
 
         // Cash Karp
-        __host__ __device__ double cashkarp_propagate(double dlam, CudaVec4* ylist);
-        __host__ __device__ void cashkarp_integrate(double dlam, CudaVec4* ylist);
-
-        // temporary function to get acceleration until metric class is implemented
-        __host__ __device__ CudaVec4 get_acceleration(const CudaVec4& pos, const CudaVec4& vel);
+        __device__ double cashkarp_propagate(double dlam, CudaVec4* ylist, CudaMetric& metric);
+        __device__ void cashkarp_integrate(double dlam, CudaVec4* ylist, CudaMetric& metric);
         
     public:
 
@@ -140,7 +137,7 @@ class CudaPath {
         __host__ __device__ CudaVec4& get_position() {return position;}
         __host__ __device__ CudaVec4& get_velocity() {return velocity;}
 
-        __host__ __device__ void set_integrator(Integrator integ) {integrator = integ;}
+        __host__ __device__ void set_integrator(Path::Integrator integ) {integrator = integ;}
         __host__ __device__ void set_min_dlam(double min) {min_dlam = min;}
         __host__ __device__ void set_max_dlam(double max) {max_dlam = max;}
         __host__ __device__ void set_tolerance(double tol) {tolerance = tol;}
@@ -148,9 +145,8 @@ class CudaPath {
         __host__ __device__ void set_position(const CudaVec4& pos) {position = pos;}
         __host__ __device__ void set_velocity(const CudaVec4& vel) {velocity = vel;}
 
-        // Propagate path until condition (which is a lambda function) is met
-        // note: condition is currently not passed
-        __host__ __device__ void loop_propagate(double dlam);
-        __host__ __device__ double propagate(double dlam, CudaVec4* ylist);
+        // Propagate path until condition is met
+        __device__ void loop_propagate(double dlam, Scenario::ScenarioType scenario_type, ScenarioParameters params, CudaMetric& metric);
+        __device__ double propagate(double dlam, CudaVec4* ylist, CudaMetric& metric);
 
 };

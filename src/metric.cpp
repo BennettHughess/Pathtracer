@@ -6,6 +6,7 @@ std::vector<double> Metric::get_components(const Vec4& position) {
 
     std::vector<double> components;
     double r_s, rho, rho_s;
+    double mass = params.black_hole_mass;
 
     // Check which type of metric it is
     switch (type) {
@@ -67,6 +68,7 @@ Vec4 Metric::get_acceleration(const Vec4& pos, const Vec4& vel) {
 
     Vec4 acceleration;
     double rho, rho_s;
+    double mass = params.black_hole_mass;
 
     switch (type) {
 

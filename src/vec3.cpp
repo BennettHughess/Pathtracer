@@ -98,7 +98,7 @@ Vec3 cross(const Vec3& v1, const Vec3& v2) {
 
 double m_pi = 3.14159265359;
 
-Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
+Vec3 CoordinateSystem3::Cartesian_to_Spherical(const Vec3& cartesian) {
     
     double r { cartesian.norm() };
     double theta {};
@@ -138,7 +138,7 @@ Vec3 CoordinateSystem3::Cartesian_to_Spherical(Vec3& cartesian) {
 }
 
 
-Vec3 CoordinateSystem3::Spherical_to_Cartesian(Vec3& spherical) {
+Vec3 CoordinateSystem3::Spherical_to_Cartesian(const Vec3& spherical) {
 
     double x { spherical[0]*sin(spherical[1])*cos(spherical[2]) };
     double y { spherical[0]*sin(spherical[1])*sin(spherical[2]) };
@@ -149,7 +149,7 @@ Vec3 CoordinateSystem3::Spherical_to_Cartesian(Vec3& spherical) {
 
 
 // cvec is  a cartesian vector, spos is spherical position
-Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cvec, Vec3& spos) {
+Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(const Vec3& cvec, const Vec3& spos) {
 
     double r {  
        cvec[0]*cos(spos[2])*sin(spos[1]) + cvec[1]*sin(spos[1])*sin(spos[2]) + cvec[2]*cos(spos[1])
@@ -166,7 +166,7 @@ Vec3 CoordinateSystem3::CartesianVector_to_SphericalVector(Vec3& cvec, Vec3& spo
 }
 
 // Turns a cartesian tangent into a spherical tangent
-Vec3 CoordinateSystem3::CartesianTangent_to_SphericalTangent(Vec3& cpos, Vec3& cvel) {
+Vec3 CoordinateSystem3::CartesianTangent_to_SphericalTangent(const Vec3& cpos, const Vec3& cvel) {
 
     double r { cpos.norm() };
 

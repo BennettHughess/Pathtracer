@@ -5,10 +5,6 @@
 images/*.ppm
 *.tif
 
-# dont commit any build files and binaries
-build/*
-bin/*
-
 # VScode stuff
 .vscode 
 *.code-workspace
