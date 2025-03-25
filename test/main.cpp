@@ -204,6 +204,16 @@ int main(int argc, char *argv[]) {
     camera.set_parallel_type(parallel_type);
     camera.set_threadnum(threads);
 
+    try {
+        if ( parallel_type == 2 and (image_width % 16 != 0 or image_height % 16 != 0) ) {
+            throw 16;
+        }
+    }
+    catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Image height/width must be divisible by 16 when running on the GPU (for thread reasons)." << std::endl;
+        return 1;
+    }
+
     /*
         PATH TRACING TIMEEEEEE
     */

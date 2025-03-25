@@ -1,6 +1,6 @@
-Version 0.5.1
+Version 0.5.2
 
 Changes:
 
-- Fixed shadowing bug in main.cpp
-- Changed default compiler to g++
+- Code now checks that resolution is divisible by 16 when running on the GPU (for thread purposes).
+- removed .vscode

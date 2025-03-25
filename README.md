@@ -94,6 +94,7 @@ Here's a more verbose description of each of these settings:
 - `camera:up` is a vector which corresponds to whatever direction is "up" relative to the Camera in $(x,y,z)$ coordinates. This parameter could be adjusted to rotate the Camera, although it's a bit unwieldy. It is required that `up` is orthogonal to `direction`.
 - `camera:rotation` is a 3-tuple of angles, in radians that corresponds to the rotation of the camera. This tuple is of the form (pitch, yaw, roll).
 - `camera:image:width` and `camera:image:height` correspond to the width and height of the ouput image in pixels.
+    - Note: currently, for thread reasons, the width and height of the image must be divisible by 16 when the code is GPU-accelerated.
 - `camera:viewport:fov` is the field of view of the Camera in radians (larger -> wider view).
 - `camera:viewport:distance` is the distance from the Camera origin to the viewport plane. You don't need to adjust this for any reason, I think.
 - `background:radius` is the radius of the enclosing background sphere. The Camera should reside inside the background sphere.
