@@ -122,8 +122,8 @@ int main(int argc, char *argv[]) {
         try {
             background.load_img(dir_path/"images/milky_way.jpg");
         }
-        catch (int Err) {
-            std::cerr << "ERROR " << Err << ": Failure in background.load_img. " 
+        catch (int subErr) {
+            std::cerr << "ERROR " << subErr << ": Failure in background.load_img. " 
             << "Attempted to open " << config["background"]["image_path"] << ". Terminating program." << std::endl;
             return 1;
         }

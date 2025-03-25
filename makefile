@@ -12,7 +12,7 @@
 #
 ################ SETTINGS #################
 # Compilers
-CXX := clang++
+CXX := g++
 CUDACXX := nvcc
 
 ############### LOGIC #####################
