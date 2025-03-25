@@ -20,7 +20,7 @@
     {
         "radius": 50,
         "type": "Image",
-        "image_path": "/home/ben-ubuntu/Pathtracer/images/milky_way.jpg"
+        "image_path": "/users/PAS2137/bennetthughes137/Pathtracer/images/milky_way.jpg"
     },
     "scenario":
     {
