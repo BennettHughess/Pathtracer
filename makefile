@@ -12,7 +12,7 @@
 #
 ################ SETTINGS #################
 # Compilers
-CXX := g++
+CXX := clang++
 CUDACXX := nvcc
 
 ############### LOGIC #####################
@@ -24,6 +24,7 @@ CUDA_LIB_PATH := $(shell dirname $(shell command -v $(CUDACXX)))/../lib64
 CUDA_INSTALLED := CUDA_INSTALLED
 else
 CUDA_LIB_PATH := 
+CUDA_INSTALLED := 
 endif
 
 # Add some info about nvcc
@@ -38,10 +39,10 @@ DIR_PATH := $(shell pwd)
 $(info INFO: Project directory path: $(DIR_PATH). If this is wrong, remake from the project directory!)
 
 # Relevant library paths and header stuff
-LIB_PATHS := /lib $(CUDA_LIB_PATH)
+LIB_PATHS := $(CUDA_LIB_PATH)
 LIBFLAGS := $(addprefix -L, $(LIB_PATHS))
 
-I_PATHS := /lib
+I_PATHS := 	# not including any headers rn
 IFLAGS := $(addprefix -I, $(I_PATHS))
 
 ifeq ($(HAS_NVCC),1)
@@ -50,9 +51,13 @@ else
 LIBS := 
 endif
 
+# Macro flags
+MACROS := $(CUDA_INSTALLED) DIR_PATH=\"$(DIR_PATH)\"
+MACRO_FLAGS := $(addprefix -D, $(MACROS))
+
 # Compiler flags
 LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 $(LIBFLAGS) $(LIBS) $(IFLAGS)
-CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -D$(CUDA_INSTALLED) -DDIR_PATH=\"$(DIR_PATH)\"
+CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 $(MACRO_FLAGS)
 CUDACXX_FLAGS := -c -arch=sm_86 -ccbin=$(CXX) -O3 -dc -std=c++17
 CUDACXX_LFLAGS := -arch=sm_86 -ccbin=$(CXX) -O3 -dlink -std=c++17
 

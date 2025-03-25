@@ -23,7 +23,7 @@ Here is the general outline of installation and usage.
 ```console
 user@hostname:~$ git clone https://github.com/BennettHughess/Pathtracer
 ``` 
-2. Navigate to the repository (important). Open the Makefile and configure the `CXX` variable so that the correct compiler is used; the default is `g++`. Run `make`.
+2. Navigate to the repository (important). Open the Makefile and configure the `CXX` variable so that the correct compiler is used; the default is probably `g++` or `clang++`. Run `make`.
 ```console
 user@hostname:~$ cd Pathtracer
 user@hostname:~/Pathtracer$ make
