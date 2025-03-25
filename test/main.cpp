@@ -18,12 +18,15 @@ using json = nlohmann::json;
 int main(int argc, char *argv[]) {
 
     // get directory location
-    std::filesystem::path executable_path = std::filesystem::current_path();
-    std::filesystem::path dir_path = executable_path/"..";
+    #ifdef DIR_PATH        // this gets defined when the makefile is run
+        std::filesystem::path dir_path = DIR_PATH;
+    #else
+        std::filesystem::path dir_path = std::filesystem::current_path()/"..";
+    #endif
 
     // get config and image path
     std::filesystem::path config_path = dir_path/"config.json";
-    std::filesystem::path image_path = dir_path/"main.ppm";
+    std::filesystem::path image_path;
 
     /*
         Parse config file
@@ -71,22 +74,21 @@ int main(int argc, char *argv[]) {
     const int image_height {config["camera"]["image"]["height"]};
     camera.set_image_settings(image_width, image_height);
 
-    // Get filename and initialize filestream
-    std::ofstream filestream;
+    // Get filename for image to be saved as
     try {
         if (argc == 1) {        // check if filename was inputted
-            filestream.open(image_path.string()); // if not, default output file to main.ppm
+            image_path=(dir_path/"main.png").string(); // if not, default output file to main.png
         } 
-        else {
-            std::string filename {argv[1]}; // if so, use the inputted filename
-            filestream.open(filename);
+        else if (argc == 2) {
+            std::string input_filename {argv[1]}; // if so, use the inputted filename
+            image_path=(dir_path/input_filename).string();
         }
-        if (!filestream.is_open()) {
-            throw 11;
+        else {
+            throw 17;
         }
     }
     catch (int Err) {
-        std::cerr << "ERROR " << Err << ": Image file failed to be opened. Check path?" << std::endl;
+        std::cerr << "ERROR " << Err << ": Invalid argument count: " << argc << std::endl;
         return 1;
     }
     
@@ -110,12 +112,22 @@ int main(int argc, char *argv[]) {
 
     // Load background image
     try {
-        background.load_ppm(config["background"]["image_path"]);
+        background.load_img(config["background"]["image_path"]);
     }
     catch (int Err) {
-        std::cerr << "ERROR " << Err << ": Failure in background.load_ppm. " 
-            << "Attempted to open " << config["background"]["image_path"] << std::endl;
-        return 1;
+        std::cerr << "ERROR " << Err << ": Failure in background.load_img. " 
+            << "Attempted to open " << config["background"]["image_path"] << " -- check config file." << std::endl;
+        std::clog << "Unable to load specified background image. Defaulting to opening " << dir_path/"images/milky_way.jpg" << std::endl;
+        
+        try {
+            background.load_img(dir_path/"images/milky_way.jpg");
+        }
+        catch (int Err) {
+            std::cerr << "ERROR " << Err << ": Failure in background.load_img. " 
+            << "Attempted to open " << config["background"]["image_path"] << ". Terminating program." << std::endl;
+            return 1;
+        }
+
     }
     
     // Configure viewport
@@ -207,16 +219,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::cout << "Writing to file!" << '\n';
-
     /*
         WRITE TO FILE
     */
 
-    // ppm header
-    filestream << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    std::cout << "Writing to file: " << image_path << '\n';
 
-    // we iterate over each pixel and set its color accordingly
+    // Declare array of pixel colors
+    std::vector<std::vector<Vec3>> array(image_height, std::vector<Vec3>(image_width));
+
+    // Initialize array of pixel colors
     for (int i {0}; i < image_height; ++i) {
         for (int j {0}; j < image_width; ++j) {
 
@@ -224,18 +236,20 @@ int main(int argc, char *argv[]) {
             Vec3 pos = scenario.get_pixel_pos(camera.get_paths()[i][j]);
 
             // Get the ray's color and save as pixel_color
-            Vec3 pixel_color = background.get_color(pos); // NOTE what is passed depends on the metric of choice
+            Vec3 pixel_color = background.get_color(pos);
 
-            // Write color to output stream
-            filestream << int(pixel_color[0]) << ' ' << int(pixel_color[1]) << ' ' << int(pixel_color[2]) << '\n';
+            // set pixel color
+            array[i][j] = pixel_color;
 
         }
     }
 
+    // Save image file
+    background.save_png(image_path, array);
+
     // Finished!
     std::clog << "\rDone.                           \n";
 
-    filestream.close();
     configstream.close();
 
     return 0;

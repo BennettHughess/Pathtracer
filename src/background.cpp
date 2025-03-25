@@ -1,6 +1,10 @@
 #include <fstream>
 #include <iostream>
 #include "../include/background.h"
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../lib/stb_image.h"
+#include "../lib/stb_image_write.h"
 
 void Background::load_ppm(const std::string filename) {
 
@@ -81,6 +85,67 @@ void Background::load_ppm(const std::string filename) {
     }
 }
 
+void Background::load_img(const std::string filename) {
+
+    if (type == Image) {
+
+        // Check if png can be opened.
+        try {
+            if (!stbi_info(filename.c_str(), &image_width, &image_height, &image_channels)) {
+                throw 12;
+            }
+        }
+        catch (int Err) {
+            std::cerr << "ERROR " << Err << ": Background image file failed to be opened. Check path?" << std::endl;
+            throw Err;
+        }
+
+        // Save png to a file
+        unsigned char* data = stbi_load(filename.c_str(), &image_width, &image_height, &image_channels, 0);
+
+        // Resize image_array with the image_height and image_width
+        image_array.resize(image_height);
+        for (int i {0}; i < image_height; ++i) {
+            image_array[i].resize(image_width);
+        }
+
+        // Create rgb vector for later
+        Vec3 rgb;
+
+        // Read RGB values and save to image_array
+        for (int i {0}; i < image_height; ++i) {
+            for (int j {0}; j < image_width; ++j) {
+
+                // Calculate pixel index
+                int index = (i * image_width + j) * image_channels;
+
+                // Get RGB values
+                unsigned char r = data[index];
+                unsigned char g = data[index + 1];
+                unsigned char b = data[index + 2];
+        
+                // Save r, g ,b to a vector
+                rgb = {(double)r, (double)g, (double)b};
+
+                // Save vector into the image array
+                image_array[i][j] = rgb;
+
+            }
+        }
+
+        // Free image data
+        stbi_image_free(data);
+
+        // To make sure that we know we have an image to load
+        image_been_loaded = true;
+
+    }
+    else {
+        std::cerr << "Background is not of type 'image'.";
+        throw 1;
+    }
+}
+
 // Save image_array to a ppm file
 void Background::save_ppm(const std::string filename) {
 
@@ -112,6 +177,61 @@ void Background::save_ppm(const std::string filename) {
     else {
          std::cerr << "Image was not loaded prior to saving. \n";
     }
+
+}
+
+// Save array to a png file
+void Background::save_png(const std::string filename, const std::vector<std::vector<Vec3>> array) {
+
+    int array_height = array.size();
+    int array_width = array[0].size();
+    int channels = 3;   // rgb channels
+
+    // Allocate memory for the image
+    unsigned char* data = new unsigned char[array_width * array_height * channels];
+
+    // define some vars for the loop
+    int index, r, g, b;
+    unsigned char char_r, char_g, char_b;
+
+    // Set data struct equal to array
+    for (int i = 0; i < array_height; i++) {
+        for (int j = 0; j < array_width; j++) {
+
+            // get index of pixel
+            index = (i * array_width + j) * channels;
+
+            // get color at current pixel
+            r = array[i][j][0];
+            g = array[i][j][1];
+            b = array[i][j][2];
+
+            // convert r,g,b to char for saving
+            char_r = static_cast<unsigned char>(r);
+            char_g = static_cast<unsigned char>(g);
+            char_b = static_cast<unsigned char>(b);
+
+            // set data to pixel color
+            data[index] = char_r;
+            data[index + 1] = char_g;
+            data[index + 2] = char_b;
+        }
+    }
+
+    // Save as png
+    try {
+        if (!stbi_write_png(filename.c_str(), array_width, array_height, channels, data, array_width * channels)) {
+            delete[] data;
+            throw 40;
+        }
+    }
+    catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Failed to save file as png." << std::endl;
+        throw Err;
+    }
+
+    // Free memory
+    delete[] data;
 
 }
 
@@ -177,4 +297,30 @@ Vec3 Background::get_color(Vec3& spherical_coordinates) {
 
     }
     return color;
+}
+
+void Background::set_image_array(const std::vector<std::vector<Vec3>> array) {
+
+    int array_width = array.size();
+    int array_height = array[0].size();
+
+    try {
+        if (array_width != image_width or array_height != image_height) {
+            throw 29;
+        }
+    }
+    catch (int Err) {
+        std::cerr << "ERROR " << Err << ": Cant set image array equal to array; mismatched dimensions. " 
+            << "image_width=" << image_width << " image_height=" << image_height 
+            << " array_width=" << array_width << " array_height=" << array_height << std::endl;
+        throw Err;
+    }
+
+    for (int i {0}; i < image_height; ++i) {
+        for (int j {0}; j < image_width; ++j) {
+
+            image_array[i][j] = array[i][j];
+
+        }
+    }
 }

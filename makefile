@@ -1,3 +1,15 @@
+##################################################################################
+#
+#	INSTALLATION (as of 03/24/2025)
+#
+#	To install the program, clone the repo and run this makefile from within the
+#	program directory. The makefile automatically checks if the nvidia CUDA
+#	compiler is installed (nvcc) and decides whether to compile with or without
+#	CUDA dependencies.
+#
+#	This makefile may require some modifications depending on your hardware, but
+#	it should work without too much manual work.
+#
 ################ SETTINGS #################
 # Compilers
 CXX := clang++
@@ -9,23 +21,38 @@ CUDACXX := nvcc
 HAS_NVCC := $(shell command -v $(CUDACXX) >/dev/null 2>&1 && echo 1 || echo 0)
 ifeq ($(HAS_NVCC),1)
 CUDA_LIB_PATH := $(shell dirname $(shell command -v $(CUDACXX)))/../lib64
+CUDA_INSTALLED := CUDA_INSTALLED
+else
+CUDA_LIB_PATH := 
 endif
 
 # Add some info about nvcc
 ifeq ($(HAS_NVCC),1)
-$(info NOTE: $(CUDACXX) was found. Compiling with CUDA dependencies. CUDA lib location: $(CUDA_LIB_PATH))
+$(info INFO: $(CUDACXX) was found. Compiling with CUDA dependencies. CUDA lib location: $(CUDA_LIB_PATH))
 else
-$(info NOTE: $(CUDACXX) was not found. Compiling without CUDA dependencies.)
+$(info INFO: $(CUDACXX) was not found. Compiling without CUDA dependencies.)
+endif
+
+# Get directory path
+DIR_PATH := $(shell pwd)
+$(info INFO: Project directory path: $(DIR_PATH). If this is wrong, remake from the project directory!)
+
+# Relevant library paths and header stuff
+LIB_PATHS := /lib $(CUDA_LIB_PATH)
+LIBFLAGS := $(addprefix -L, $(LIB_PATHS))
+
+I_PATHS := /lib
+IFLAGS := $(addprefix -I, $(I_PATHS))
+
+ifeq ($(HAS_NVCC),1)
+LIBS := -lcudart
+else
+LIBS := 
 endif
 
 # Compiler flags
-ifeq ($(HAS_NVCC),1)
-LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 -L$(CUDA_LIB_PATH) -lcudart
-CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -DCUDA_INSTALLED
-else
-LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17
-CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17
-endif
+LDFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -fopenmp -std=c++17 $(LIBFLAGS) $(LIBS) $(IFLAGS)
+CXXFLAGS := -Wall -Werror -Wextra -Wpedantic -Wunused -Wshadow -c -O3 -fopenmp -std=c++17 -D$(CUDA_INSTALLED) -DDIR_PATH=\"$(DIR_PATH)\"
 CUDACXX_FLAGS := -c -arch=sm_86 -ccbin=$(CXX) -O3 -dc -std=c++17
 CUDACXX_LFLAGS := -arch=sm_86 -ccbin=$(CXX) -O3 -dlink -std=c++17
 
@@ -57,11 +84,7 @@ CPP_OBJS := $(addprefix $(BLD)/, $(CPP_SRCS:.cpp=.o))
 TEST_OBJS := $(addprefix $(BLD)/, $(TESTS:.cpp=.o))
 
 # Basic commands to use
-ifeq ($(HAS_NVCC),1)
-all: $(BIN)/main $(BIN)/debug $(BIN)/cuda_debug
-else
-all: $(BIN)/main $(BIN)/debug
-endif
+all: $(BIN)/main 
 
 main: $(BIN)/main
 
@@ -71,9 +94,12 @@ ifeq ($(HAS_NVCC),1)
 cuda_debug: $(BIN)/cuda_debug
 endif
 
+png: $(BIN)/png
+
 clean:
 	rm -f build/*
 	rm -f bin/*
+	rm -f main.png
 
 # Compile executables
 $(BIN)/main: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/main.o 
@@ -86,6 +112,9 @@ ifeq ($(HAS_NVCC),1)
 $(BIN)/cuda_debug: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/cuda_debug.o 
 	$(CXX) $^ $(LDFLAGS) -o $@
 endif
+
+$(BIN)/png: $(BLD)/png.o 
+	$(CXX) $^ -o $@
 
 # Compile test objects
 $(BLD)/%.o: $(TST)/%.cpp

@@ -2,10 +2,7 @@
 *.DS_Store
 
 # some image files
-images/*.ppm
-*.tif
-main.ppm
-./*.ppm
+main.png
 
 # VScode stuff
 .vscode 

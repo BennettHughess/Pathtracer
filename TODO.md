@@ -1,13 +1,11 @@
 # TO DO
 
 ## Near-term goals
-- Implement image handling with PNG++ over PPMs (https://www.nongnu.org/pngpp/doc/0.2.1/)
-- Update README.md
-- Improve filesystem handling
-    - Add preprocessor macros to hard code config.json location so main.exe can be run from anywhere
+- Make a python wrapper for the codebase to script everything
+    - This could be used to make videos
 
 ## Longer term goals
-- Add a script to create video
+- Add better error handling and add a defined list of errors
 - Optimize existing codebase
     - What if I passed everything as a float on the GPU side of things?
     - Better warp allocation on the GPU side? Profile the code.

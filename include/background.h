@@ -29,6 +29,7 @@ class Background {
         // If the background is an image, it also needs to know the image dimensions:
         int image_height {};
         int image_width {};
+        int image_channels {};        // used for the std_image lib
 
     public:
 
@@ -38,12 +39,18 @@ class Background {
 
         // Access functions
         std::vector<std::vector<Vec3>>& get_image_array() { return image_array; }
+        void set_image_array(const std::vector<std::vector<Vec3>> array);
+        void set_pixel_color(Vec3 rgb, int i, int j) { image_array[i][j] = rgb;  }
 
-        // Load image into memory
+        // Load ppm into memory
         void load_ppm(const std::string filename);
 
-        // Save loaded ppm into a file
+        // Load any supported kind of image (png, jpg, etc.)
+        void load_img(const std::string filename);
+
+        // Save loaded ppm, png with data from arrayinto a file
         void save_ppm(const std::string filename);
+        void save_png(const std::string filename, const std::vector<std::vector<Vec3>> array);
 
         // Get color given a spherical coordinate
         Vec3 get_color(Vec3& spherical_coordinates);

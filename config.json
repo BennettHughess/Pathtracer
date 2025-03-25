@@ -20,7 +20,7 @@
     {
         "radius": 50,
         "type": "Image",
-        "image_path": "/home/ben-ubuntu/Pathtracer/images/milky_way_hres.ppm"
+        "image_path": "/home/ben-ubuntu/Pathtracer/images/milky_way.jpg"
     },
     "scenario":
     {
@@ -33,11 +33,11 @@
         "dlam": 0.1,
         "max_dlam": 5,
         "min_dlam": 1.0E-20,
-        "tolerance": 1.0E-4
+        "tolerance": 1.0E-6
     },
     "parallel":
     {
-        "parallel_type": 2,
+        "parallel_type": 1,
         "threads": 20
     }
 }
