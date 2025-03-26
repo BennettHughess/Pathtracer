@@ -1,9 +1,8 @@
-Version 0.5.3
+Version 0.6.0
 
 Changes:
 
-- Fixed compilation bug when running on non-cuda capable devices
-- Changed sprintf to snprintf in stb_image_write library
-- Modified makefile to not include /lib headers (since it didnt make any sense)
-- Current default compiler is back to clang++ 
-    - Note: on my mac, g++ defaults to running Apple Clang++, which doesn't support -fopenmp. Therefore, I need to specifically run Homebrew's g++-14.
+- Added a Python class, `pathtracer.py`, which can now create scripted videos using the main executable.
+    - The script can also be executed with `python pathtracer.py` to create an example video (which can be easily edited).
+- A `requirements.txt` file was also created for easy creation of a .venv if needed.
+- Updated README.md

@@ -104,7 +104,7 @@ png: $(BIN)/png
 clean:
 	rm -f build/*
 	rm -f bin/*
-	rm -f main.png
+	rm -f main.png main.gif
 
 # Compile executables
 $(BIN)/main: $(CPP_OBJS) $(CUDA_OBJS) $(CUDA_OUT) $(BLD)/main.o 

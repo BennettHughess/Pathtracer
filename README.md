@@ -6,6 +6,11 @@ README last updated: 03/24/2025
 
 This project is capable of pathtracing null geodesics and recovering images around selected spacetimes -- in particular, this project can currently generate images of Schwarzschild black holes and in Minkowski spacetime using both spherical and Cartesian coordinates. Image generation can be accelerated with CUDA capable GPUs and multithreading is supported.
 
+The project also features a simple Python wrapper `pathtracer.py` which can be used to automate image or video/gif creation. The script can be executed via `python pathtracer.py` to create an example gif. The gif would be quite large for most configuration settings, so it is recommended to use [ImageMagick](https://imagemagick.org/) to compress the gif or save it in a better format (e.g. mp4). There is also a `requirements.txt` file which will install the requisite packages using 
+```console
+user@hostname:~/Pathtracer$ pip install -r requirements.txt
+```
+
 The camera position, field of view, and other related quantities can be altered inside the `config.json file` contained in the root directory of the project.
 
 <p float=left>

@@ -1,12 +1,19 @@
 # Mac-specific finder file
 *.DS_Store
 
-# some image files
+# some image/video files
 main.png
+main.gif
+temp_images/*
+main.mp4
 
 # VScode stuff
 .vscode 
 *.code-workspace
+
+#python stuff
+.venv
+__pycache__
 
 # compiled stuff
 bin/*
